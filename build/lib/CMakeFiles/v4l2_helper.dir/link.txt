@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC   -shared -Wl,-soname,libv4l2_helper.so.0.1 -o libv4l2_helper.so.0.1.0 CMakeFiles/v4l2_helper.dir/src/v4l2_helper.c.o  -L/usr/local/cuda-10.2/lib64 

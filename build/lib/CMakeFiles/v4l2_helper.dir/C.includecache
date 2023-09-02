@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cooper/FYP_Logic_Cpp/lib/src/v4l2_helper.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+fcntl.h
+-
+unistd.h
+-
+errno.h
+-
+sys/stat.h
+-
+sys/types.h
+-
+sys/time.h
+-
+sys/mman.h
+-
+sys/ioctl.h
+-
+linux/videodev2.h
+-
+v4l2_helper.h
+/home/cooper/FYP_Logic_Cpp/lib/src/v4l2_helper.h
+
