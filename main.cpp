@@ -9,6 +9,15 @@
 using namespace std;
 using namespace cv;
 
+unsigned int GetTickCount()
+{
+        struct timeval tv;
+        if(gettimeofday(&tv, NULL) != 0)
+                return 0;
+ 
+        return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+}
+
 void drawDetectedCircles(Mat image, vector<Vec3f> circles){
     for (const Vec3f& circleInstance : circles) {
         Point center(cvRound(circleInstance[0]), cvRound(circleInstance[1]));
@@ -23,6 +32,7 @@ int main() {
 	const char* videodev = "/dev/video0";
 	unsigned char* ptr_cam_frame;
 	int bytes_used;
+    unsigned int start, end, fps = 0;
 
     namedWindow("TRAHT_Vision");
     
@@ -32,7 +42,14 @@ int main() {
     }
     
     Mat cpuFrame = Mat(height, width, CV_8UC2);
+
+    Mat cameraMatrix, distCoeffs;
+    FileStorage fs2("./calibration_params.yml", FileStorage::READ);
+    fs2["camera_matrix"] >> cameraMatrix;
+    fs2["distortion_coefficients"] >> distCoeffs;
+    fs2.release();
     
+    start = GetTickCount();
     while (1) {
         if(waitKey(1) == 27) break;
         // Get the camera frame
@@ -46,13 +63,15 @@ int main() {
             return 0;
         }
 
-        // convert to BGR colour
         Mat cpuFrame_BGR;
         cvtColor(cpuFrame, cpuFrame_BGR, COLOR_YUV2BGR_UYVY);
 
+        Mat undistortedImage;
+        undistort(cpuFrame_BGR, undistortedImage, cameraMatrix, distCoeffs);
+
         Mat cpuFrameR;
         Size rescaledSize(1024, 576);
-        resize(cpuFrame_BGR, cpuFrameR, rescaledSize);
+        resize(undistortedImage, cpuFrameR, rescaledSize);
 
         Mat cpuFrame_Blurred;
         GaussianBlur(cpuFrameR, cpuFrame_Blurred, Size(5, 5), 0);
@@ -83,6 +102,14 @@ int main() {
         imshow("TRAHT_Vision", cpuFrame_Blurred);
 
         helper_release_cam_frame();
+        
+        fps++;
+		end = GetTickCount();
+		if ((end - start) >= 1000) {
+			cout << "fps = " << fps << endl;
+			fps = 0;
+			start = end;
+		}
     }
 
     if (helper_deinit_cam() < 0)
