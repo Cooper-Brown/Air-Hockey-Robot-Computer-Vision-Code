@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/SerialTestExe.dir/test.cpp.o  -o SerialTestExe -lCppLinuxSerial 

@@ -1,0 +1,3 @@
+/home/cooper/SerialCommsTesting/TestCode/build/CMakeFiles/rebuild_cache.dir
+/home/cooper/SerialCommsTesting/TestCode/build/CMakeFiles/SerialTestExe.dir
+/home/cooper/SerialCommsTesting/TestCode/build/CMakeFiles/edit_cache.dir
