@@ -37,6 +37,10 @@ CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/core/version.hpp
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudaarithm.hpp
+CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudafilters.hpp
+CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
+CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/cudawarping.hpp
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn.hpp
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dict.hpp
 CMakeFiles/opencv-calib-camera.dir/main.cpp.o: /usr/local/include/opencv4/opencv2/dnn/dnn.hpp

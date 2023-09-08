@@ -38,6 +38,10 @@ CMakeFiles/opencv-calib-camera.dir/main.cpp.o
  /usr/local/include/opencv4/opencv2/core/utils/tls.hpp
  /usr/local/include/opencv4/opencv2/core/version.hpp
  /usr/local/include/opencv4/opencv2/core/vsx_utils.hpp
+ /usr/local/include/opencv4/opencv2/cudaarithm.hpp
+ /usr/local/include/opencv4/opencv2/cudafilters.hpp
+ /usr/local/include/opencv4/opencv2/cudaimgproc.hpp
+ /usr/local/include/opencv4/opencv2/cudawarping.hpp
  /usr/local/include/opencv4/opencv2/dnn.hpp
  /usr/local/include/opencv4/opencv2/dnn/dict.hpp
  /usr/local/include/opencv4/opencv2/dnn/dnn.hpp
