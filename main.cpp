@@ -11,6 +11,13 @@
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudawarping.hpp>
 
+/*
+#include <vpi/OpenCVInterop.hpp>
+#include <vpi/Types.h>
+#include <vpi/Image.h>
+#include <vpi/algo/Undistort.h>
+*/
+
 #include <iostream>
 #include <vector>
 #include <sys/time.h>
@@ -21,6 +28,87 @@
 using namespace std;
 using namespace cv;
 
+class Coordinate {
+    public:
+        int x;
+        int y;
+        Coordinate () {
+            x = 0;
+            y = 0;
+        }
+        Coordinate (int xIn, int yIn) {
+            x = xIn;
+            y = yIn;
+        }
+};
+
+class Line {
+    public:
+        Coordinate p1;
+        Coordinate p2;
+        Line () {
+            p1 = Coordinate();
+            p2 = Coordinate();
+        }
+        Line (Coordinate p1In, Coordinate p2In) {
+            p1 = p1In;
+            p2 = p2In;
+        }
+};
+
+class Corner {
+    public:
+        Coordinate center;
+        int radius;
+        Corner() {
+            center = Coordinate();
+            radius = 0;
+        }
+        Corner(Coordinate centerIn, int radiusIn) {
+            center = centerIn;
+            radius = radiusIn;
+        }
+};
+
+class AirHockeyTable {
+    public:
+        Line topLine, bottomLine, leftLine, rightLine;
+        Corner topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
+        AirHockeyTable() {
+            topLine = Line();
+            bottomLine = Line();
+            leftLine = Line();
+            rightLine = Line();
+            topLeftCorner = Corner();
+            topRightCorner = Corner();
+            bottomRightCorner = Corner();
+            bottomLeftCorner = Corner();            
+        }
+        
+};
+
+class Vector {
+    public:
+        int xComponent, yComponent;
+        Vector() {
+            xComponent = 0;
+            yComponent = 0;
+        }
+        Vector(int xComponentIn, int yComponentIn) {
+            xComponent = xComponentIn;
+            yComponent = yComponentIn;
+        }
+        int getLength() {
+            return sqrt(pow(xComponent, 2) + pow(yComponent, 2));
+        }
+};
+
+class Puck {
+    public:
+        Coordinate center();
+        
+};
+
 unsigned int GetTickCount()
 {
         struct timeval tv;
@@ -28,7 +116,7 @@ unsigned int GetTickCount()
                 return 0;
  
         return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-}
+};
 
 void drawDetectedCircles(Mat image, vector<Vec3f> circles){
     for (const Vec3f& circleInstance : circles) {
@@ -44,7 +132,7 @@ int main() {
 	const char* videodev = "/dev/video0";
 	unsigned char* ptr_cam_frame;
 	int bytes_used;
-    unsigned int start, end, fps = 0;
+    unsigned int start, end;
 
     cv::cuda::setDevice(0);
     //cv::cuda::checkCudaErrors(cudaGetLastError());
@@ -56,11 +144,9 @@ int main() {
         return 0;
     }
     
-    
-
     // Get the parameters to undistort the images from file
     Mat cameraMatrix, distCoeffs;
-    FileStorage fs2("./calibration_params.yml", FileStorage::READ);
+    FileStorage fs2("./calibration_params_360p.yml", FileStorage::READ);
     fs2["camera_matrix"] >> cameraMatrix;
     fs2["distortion_coefficients"] >> distCoeffs;
     fs2.release();
@@ -72,18 +158,18 @@ int main() {
     cv::Ptr<cv::cuda::Filter> gaussianFilter = cv::cuda::createGaussianFilter(CV_8UC3, CV_8UC3, kernelSize, sigmaX, sigmaY);
     
     // The image will be rescaled to this resolution
-    cv::Size rescaledSize(1024, 576);
+    cv::Size rescaledSize(640, 360);
 
     // Parameters for the circle detector
     cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorI = cv::cuda::createHoughCirclesDetector(1.75, 10, 200, 40, 1, 20);
 
     // Instantiate all of the temporary variables we need, so they aren't in the loop.
     cv::Mat cpuFrame = cv::Mat(height, width, CV_8UC2);
-    cv::Mat undistortedImage = cv::Mat(height, width, CV_8UC3);
-    cv::Mat cpuFrameBlurred;
-    cv::Mat cpuFrameBGR;
+    cv::Mat undistortedImage = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+    cv::Mat cpuFrameBlurred = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+    cv::Mat cpuFrameBGR = cv::Mat(height, width, CV_8UC3);
     cv::Mat cpuFrameConverted;
-
+    cv::Mat cpuFrameResized = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);;
     cv::cuda::GpuMat gpuFrameDownscaled = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC1);
     cv::cuda::GpuMat gpuFrameBlurred = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC1);
     cv::cuda::GpuMat gpuFrame;
@@ -95,13 +181,16 @@ int main() {
     cv::cuda::GpuMat detectedRedCirclesGPU;
     std::vector<cv::Vec3f> detectedGreenCircles;
     std::vector<cv::Vec3f> detectedRedCircles;
-
-    
-    
+    cv::Mat detectedGreenCircles2;
+    cv::Mat detectedRedCircles2;
+    cout << "Finished configuration, starting loop..." << endl;
 
     while (1) {
         start = GetTickCount();
+
+        // on escape key, exit the 
         if(waitKey(1) == 27) break;
+
         // Get the camera frame
         if (helper_get_cam_frame(&ptr_cam_frame, &bytes_used) < 0) {
             cout << "Error: Could not get an image frame.\n";
@@ -113,82 +202,66 @@ int main() {
             return 0;
         }
 
-
-		
-
+        // Run Image Processing
         cv::cvtColor(cpuFrame, cpuFrameBGR, cv::COLOR_YUV2BGR_UYVY);
-
-        //cv::undistort(cpuFrameBGR, undistortedImage, cameraMatrix, distCoeffs);
-
-        //cout << cpuFrameBGR.type() << "<>" << undistortedImage.type() << endl;
-
-        gpuFrame = cv::cuda::GpuMat(cpuFrameBGR);
+        cv::resize(cpuFrameBGR, cpuFrameResized, rescaledSize, INTER_LINEAR);
+        cv::undistort(cpuFrameResized, undistortedImage, cameraMatrix, distCoeffs);
         
-        cv::cuda::resize(gpuFrame, gpuFrameDownscaled, rescaledSize, INTER_LINEAR);
-
+        gpuFrame = cv::cuda::GpuMat(undistortedImage);
+        //cv::cuda::resize(gpuFrame, gpuFrameDownscaled, rescaledSize, INTER_LINEAR);
         // Apply Gaussian blur using the filter function
-        gaussianFilter->apply(gpuFrameDownscaled, gpuFrameBlurred);
-
+        gaussianFilter->apply(gpuFrame, gpuFrameBlurred);
         cv::cuda::split(gpuFrameBlurred, gpuFrame_channels);
         greenChannelGPU = gpuFrame_channels[1];
         redChannelGPU = gpuFrame_channels[2];
-
         houghCircleDetectorI->detect(greenChannelGPU, detectedGreenCirclesGPU);
         houghCircleDetectorI->detect(redChannelGPU, detectedRedCirclesGPU);
 
-        gpuFrameBlurred.download(cpuFrameBlurred); // Download result back to CPU Mat
+        cout << "Download started" << endl;
+        //gpuFrameBlurred.download(cpuFrameBlurred); // Download result back to CPU Mat
+        // ERROR GETS THROWN IN THE NEXT TWO LINES IF NO CIRCLES CAN BE FOUND
         detectedGreenCirclesGPU.download(detectedGreenCircles);
         detectedRedCirclesGPU.download(detectedRedCircles);
+        cout << "Download ended" << endl;
 
         // Draw detected circles on the CPU Mat
-        drawDetectedCircles(cpuFrameBlurred, detectedGreenCircles);
-        drawDetectedCircles(cpuFrameBlurred, detectedRedCircles);
-
+        drawDetectedCircles(undistortedImage, detectedGreenCircles);
+        drawDetectedCircles(undistortedImage, detectedRedCircles);
+        
         /*
         Mat cpuFrame_BGR;
         cvtColor(cpuFrame, cpuFrame_BGR, COLOR_YUV2BGR_UYVY);
-
         Mat undistortedImage;
         undistort(cpuFrame_BGR, undistortedImage, cameraMatrix, distCoeffs);
-
         Mat cpuFrameR;
         Size rescaledSize(1024, 576);
         resize(undistortedImage, cpuFrameR, rescaledSize);
-
         Mat cpuFrame_Blurred;
         GaussianBlur(cpuFrameR, cpuFrame_Blurred, Size(5, 5), 0);
-
         Mat cpuFrameR_channels[3];
         split(cpuFrame_Blurred, cpuFrameR_channels);
         Mat greenChannel = cpuFrameR_channels[1];
         Mat redChannel = cpuFrameR_channels[2];
-
         Mat greenChannelHoughReady;
         greenChannel.convertTo(greenChannelHoughReady, CV_8U);
-
         Mat redChannelHoughReady;
         redChannel.convertTo(redChannelHoughReady, CV_8U);
-
         vector<Vec3f> detectedGreenCircles;
         HoughCircles(greenChannelHoughReady, detectedGreenCircles, cv::HOUGH_GRADIENT, 1.75, 10, 200, 40, 1, 20);
-        
         vector<Vec3f> detectedRedCircles;
         HoughCircles(redChannelHoughReady, detectedRedCircles, cv::HOUGH_GRADIENT, 1.75, 10, 200, 40, 1, 20);
-
         //Mat cpuFrame_greyscale;
         //cvtColor(greenChannel, cpuFrame_greyscale, COLOR_GRAY2BGR);
-
         drawDetectedCircles(cpuFrame_Blurred, detectedGreenCircles);
         drawDetectedCircles(cpuFrame_Blurred, detectedRedCircles);
         */
         
-        imshow("TRAHT_Vision", cpuFrameBlurred);
+        imshow("TRAHT_Vision", undistortedImage);
 
         helper_release_cam_frame();
 
         end = GetTickCount();
 		cout << 1000/(end-start) << "fps" << endl;
-        
     }
 
     if (helper_deinit_cam() < 0)
