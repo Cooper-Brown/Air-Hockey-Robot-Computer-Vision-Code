@@ -27,6 +27,14 @@ opencv2/cudaimgproc.hpp
 -
 opencv2/cudawarping.hpp
 -
+vpi/OpenCVInterop.hpp
+-
+vpi/Types.h
+-
+vpi/Image.h
+-
+vpi/algo/Undistort.h
+-
 iostream
 -
 vector

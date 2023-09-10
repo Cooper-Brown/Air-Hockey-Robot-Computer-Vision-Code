@@ -28,15 +28,25 @@
 using namespace std;
 using namespace cv;
 
+#define ENVIRONMENT_WIDTH 1760
+#define ENVIROMENT_HEIGHT 990
+#define TABLE_WIDTH 1620
+#define TABLE_HEIGHT 750
+#define TABLE_CURVE_RADIUS 120
+#define PUCK_RADIUS 26
+#define MALLET_RADIUS 36
+
+#define COLOR_PURPLE cv::Scalar(255,0,255)
+
 class Coordinate {
     public:
-        int x;
-        int y;
+        float x;
+        float y;
         Coordinate () {
             x = 0;
             y = 0;
         }
-        Coordinate (int xIn, int yIn) {
+        Coordinate (float xIn, float yIn) {
             x = xIn;
             y = yIn;
         }
@@ -59,12 +69,12 @@ class Line {
 class Corner {
     public:
         Coordinate center;
-        int radius;
+        float radius;
         Corner() {
             center = Coordinate();
             radius = 0;
         }
-        Corner(Coordinate centerIn, int radiusIn) {
+        Corner(Coordinate centerIn, float radiusIn) {
             center = centerIn;
             radius = radiusIn;
         }
@@ -72,17 +82,27 @@ class Corner {
 
 class AirHockeyTable {
     public:
+        float x, y, r, xOffset, yOffset;
         Line topLine, bottomLine, leftLine, rightLine;
         Corner topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
         AirHockeyTable() {
-            topLine = Line();
-            bottomLine = Line();
-            leftLine = Line();
-            rightLine = Line();
-            topLeftCorner = Corner();
-            topRightCorner = Corner();
-            bottomRightCorner = Corner();
-            bottomLeftCorner = Corner();            
+            x = 0; // DEFAULT VALUES
+            //AirHockeyTable();
+        }
+        AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn, float yOffsetIn) {
+            x = xIn;
+            y = yIn;
+            r = rIn;
+            xOffset = xOffsetIn;
+            yOffset = yOffsetIn;
+            topLine = Line(Coordinate(xOffset + r, y + yOffset), Coordinate(xOffset + x - r, y + yOffset));
+            bottomLine = Line(Coordinate(xOffset + r, yOffset), Coordinate(xOffset + x - r, yOffset));
+            leftLine = Line(Coordinate(xOffset, yOffset + r), Coordinate(xOffset, yOffset+y-r));
+            rightLine = Line(Coordinate(xOffset+x, yOffset + r), Coordinate(xOffset+x, yOffset+y-r));
+            topLeftCorner = Corner(Coordinate(xOffset + r, yOffset + y - r), r);
+            topRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + y - r), r);
+            bottomRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + r), r);
+            bottomLeftCorner = Corner(Coordinate(xOffset + r, yOffset + r), r);
         }
         
 };
@@ -105,8 +125,9 @@ class Vector {
 
 class Puck {
     public:
-        Coordinate center();
-        
+        Coordinate center;
+        Vector velocity;
+
 };
 
 unsigned int GetTickCount()
@@ -116,7 +137,7 @@ unsigned int GetTickCount()
                 return 0;
  
         return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-};
+}
 
 void drawDetectedCircles(Mat image, vector<Vec3f> circles){
     for (const Vec3f& circleInstance : circles) {
@@ -124,6 +145,13 @@ void drawDetectedCircles(Mat image, vector<Vec3f> circles){
         int radius = cvRound(circleInstance[2]);
         circle(image, center, radius, Scalar(0, 0, 255), 2); // You can adjust the color and thickness as needed.
     }
+}
+
+void drawBorderLine(Mat image, Line line) {
+    cv::Point p1(line.p1.x, line.p1.y);
+    cv::Point p2(line.p2.x, line.p2.y);
+    int thickness = 2;
+    cv::line(image, p1, p2, COLOR_PURPLE, thickness, cv::LINE_4);
 }
 
 int main() {
@@ -217,17 +245,64 @@ int main() {
         houghCircleDetectorI->detect(greenChannelGPU, detectedGreenCirclesGPU);
         houghCircleDetectorI->detect(redChannelGPU, detectedRedCirclesGPU);
 
-        cout << "Download started" << endl;
-        //gpuFrameBlurred.download(cpuFrameBlurred); // Download result back to CPU Mat
         // ERROR GETS THROWN IN THE NEXT TWO LINES IF NO CIRCLES CAN BE FOUND
-        detectedGreenCirclesGPU.download(detectedGreenCircles);
-        detectedRedCirclesGPU.download(detectedRedCircles);
-        cout << "Download ended" << endl;
-
-        // Draw detected circles on the CPU Mat
-        drawDetectedCircles(undistortedImage, detectedGreenCircles);
-        drawDetectedCircles(undistortedImage, detectedRedCircles);
+        if (!detectedGreenCirclesGPU.empty()) {
+            detectedGreenCirclesGPU.download(detectedGreenCircles);
+            drawDetectedCircles(undistortedImage, detectedGreenCircles);
+        }
+        if (!detectedRedCirclesGPU.empty()) {
+            detectedRedCirclesGPU.download(detectedRedCircles);
+            drawDetectedCircles(undistortedImage, detectedRedCircles);
+        }
         
+
+        // TESTING
+        /*
+        Mat resultImage = undistortedImage.clone();
+        // END TESTING
+
+        Line l1(Coordinate(10, 10), Coordinate(500, 10));
+        drawBorderLine(undistortedImage, l1);
+        
+        // TESTING LINE DETECTION FOR TABLE BOUNDARIES
+        // Convert the image to grayscale
+        Mat grayImage;
+        cvtColor(resultImage, grayImage, COLOR_BGR2GRAY);
+
+        // Apply Gaussian blur to reduce noise (optional)
+        GaussianBlur(grayImage, grayImage, Size(5, 5), 0);
+
+        int thresholdValue = 200;  // Adjust this value as needed
+        threshold(grayImage, grayImage, thresholdValue, 255, THRESH_TOZERO);
+
+        // Perform edge detection using the Canny edge detector
+        Mat edges;
+        Canny(grayImage, edges, 150, 250, 3); // works ok with 200, 200
+
+        // Perform the Hough Line Transform to detect lines in the image
+        //std::vector<Vec2f> lines;
+        std::vector<Vec4i> lines;
+        //HoughLines(edges, lines, 1, CV_PI / 180, 150);
+        HoughLinesP(edges, lines, 1, CV_PI / 180, 180);
+
+        // Draw detected lines on a copy of the original image
+        for (size_t i = 0; i < lines.size(); i++) {
+            
+            //float rho = lines[i][0];
+            //float theta = lines[i][1];
+            //Point pt1, pt2;
+            //double a = cos(theta), b = sin(theta);
+            //double x0 = a * rho, y0 = b * rho;
+            //pt1.x = cvRound(x0 + 1000 * (-b));
+            //pt1.y = cvRound(y0 + 1000 * (a));
+            //pt2.x = cvRound(x0 - 1000 * (-b));
+            //pt2.y = cvRound(y0 - 1000 * (a));
+            //line(resultImage, pt1, pt2, Scalar(255, 0, 0), 2, LINE_AA);
+            
+            line(resultImage, Point(lines[i][0], lines[i][1]), Point(lines[i][2], lines[i][3]), Scalar(255, 0, 0), 2, LINE_AA);
+        }
+        */
+
         /*
         Mat cpuFrame_BGR;
         cvtColor(cpuFrame, cpuFrame_BGR, COLOR_YUV2BGR_UYVY);
