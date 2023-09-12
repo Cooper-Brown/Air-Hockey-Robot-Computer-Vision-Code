@@ -80,6 +80,13 @@ class Corner {
         }
 };
 
+void drawBorderLine(Mat image, Line line) {
+    cv::Point p1(line.p1.x, line.p1.y);
+    cv::Point p2(line.p2.x, line.p2.y);
+    int thickness = 2;
+    cv::line(image, p1, p2, COLOR_PURPLE, thickness, cv::LINE_4);
+}
+
 class AirHockeyTable {
     public:
         float x, y, r, xOffset, yOffset;
@@ -103,6 +110,12 @@ class AirHockeyTable {
             topRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + y - r), r);
             bottomRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + r), r);
             bottomLeftCorner = Corner(Coordinate(xOffset + r, yOffset + r), r);
+        }
+        void draw(Mat imageToDrawOn) {
+            drawBorderLine(imageToDrawOn, topLine);
+            drawBorderLine(imageToDrawOn, bottomLine);
+            drawBorderLine(imageToDrawOn, leftLine);
+            drawBorderLine(imageToDrawOn, rightLine);
         }
         
 };
@@ -130,6 +143,21 @@ class Puck {
 
 };
 
+/*
+class CoordinateTranslator {
+    public:
+        CoordinateTranslator(){
+            return;
+        }
+
+        AirHockeyTable AirHockeyTableRealSpace2PixelSpace(AirHockeyTable realSpaceTable) {
+            AirHockeyTable pixelSpaceTable;
+            return pixelSpaceTable;
+        }
+};
+*/
+
+
 unsigned int GetTickCount()
 {
         struct timeval tv;
@@ -145,13 +173,6 @@ void drawDetectedCircles(Mat image, vector<Vec3f> circles){
         int radius = cvRound(circleInstance[2]);
         circle(image, center, radius, Scalar(0, 0, 255), 2); // You can adjust the color and thickness as needed.
     }
-}
-
-void drawBorderLine(Mat image, Line line) {
-    cv::Point p1(line.p1.x, line.p1.y);
-    cv::Point p2(line.p2.x, line.p2.y);
-    int thickness = 2;
-    cv::line(image, p1, p2, COLOR_PURPLE, thickness, cv::LINE_4);
 }
 
 int main() {
@@ -213,6 +234,13 @@ int main() {
     cv::Mat detectedRedCircles2;
     cout << "Finished configuration, starting loop..." << endl;
 
+    float AHT_x = rescaledSize.width-40;
+    float AHT_y = rescaledSize.height-80;
+    float AHT_r = 40;
+    float AHT_xOffset = (rescaledSize.width - AHT_x)/2;
+    float AHT_yOffset = (rescaledSize.height - AHT_y)/2 + 5;
+    AirHockeyTable pixelSpaceTable(AHT_x, AHT_y, AHT_r, AHT_xOffset, AHT_yOffset);
+
     while (1) {
         start = GetTickCount();
 
@@ -254,6 +282,8 @@ int main() {
             detectedRedCirclesGPU.download(detectedRedCircles);
             drawDetectedCircles(undistortedImage, detectedRedCircles);
         }
+
+        pixelSpaceTable.draw(undistortedImage);
         
 
         // TESTING
