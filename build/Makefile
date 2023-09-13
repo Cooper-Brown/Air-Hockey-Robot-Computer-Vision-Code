@@ -157,17 +157,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named opencv-calib-camera
+# Target rules for targets named fyp-logic-exe
 
 # Build rule for target.
-opencv-calib-camera: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 opencv-calib-camera
-.PHONY : opencv-calib-camera
+fyp-logic-exe: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 fyp-logic-exe
+.PHONY : fyp-logic-exe
 
 # fast build rule for target.
-opencv-calib-camera/fast:
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/build
-.PHONY : opencv-calib-camera/fast
+fyp-logic-exe/fast:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/build
+.PHONY : fyp-logic-exe/fast
 
 #=============================================================================
 # Target rules for targets named uninstall
@@ -195,13 +195,202 @@ v4l2_helper/fast:
 	$(MAKE) -f lib/CMakeFiles/v4l2_helper.dir/build.make lib/CMakeFiles/v4l2_helper.dir/build
 .PHONY : v4l2_helper/fast
 
+AirHockeyTable.o: AirHockeyTable.cpp.o
+
+.PHONY : AirHockeyTable.o
+
+# target to build an object file
+AirHockeyTable.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/AirHockeyTable.cpp.o
+.PHONY : AirHockeyTable.cpp.o
+
+AirHockeyTable.i: AirHockeyTable.cpp.i
+
+.PHONY : AirHockeyTable.i
+
+# target to preprocess a source file
+AirHockeyTable.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/AirHockeyTable.cpp.i
+.PHONY : AirHockeyTable.cpp.i
+
+AirHockeyTable.s: AirHockeyTable.cpp.s
+
+.PHONY : AirHockeyTable.s
+
+# target to generate assembly for a file
+AirHockeyTable.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/AirHockeyTable.cpp.s
+.PHONY : AirHockeyTable.cpp.s
+
+Coordinate.o: Coordinate.cpp.o
+
+.PHONY : Coordinate.o
+
+# target to build an object file
+Coordinate.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Coordinate.cpp.o
+.PHONY : Coordinate.cpp.o
+
+Coordinate.i: Coordinate.cpp.i
+
+.PHONY : Coordinate.i
+
+# target to preprocess a source file
+Coordinate.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Coordinate.cpp.i
+.PHONY : Coordinate.cpp.i
+
+Coordinate.s: Coordinate.cpp.s
+
+.PHONY : Coordinate.s
+
+# target to generate assembly for a file
+Coordinate.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Coordinate.cpp.s
+.PHONY : Coordinate.cpp.s
+
+Corner.o: Corner.cpp.o
+
+.PHONY : Corner.o
+
+# target to build an object file
+Corner.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Corner.cpp.o
+.PHONY : Corner.cpp.o
+
+Corner.i: Corner.cpp.i
+
+.PHONY : Corner.i
+
+# target to preprocess a source file
+Corner.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Corner.cpp.i
+.PHONY : Corner.cpp.i
+
+Corner.s: Corner.cpp.s
+
+.PHONY : Corner.s
+
+# target to generate assembly for a file
+Corner.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Corner.cpp.s
+.PHONY : Corner.cpp.s
+
+Line.o: Line.cpp.o
+
+.PHONY : Line.o
+
+# target to build an object file
+Line.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Line.cpp.o
+.PHONY : Line.cpp.o
+
+Line.i: Line.cpp.i
+
+.PHONY : Line.i
+
+# target to preprocess a source file
+Line.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Line.cpp.i
+.PHONY : Line.cpp.i
+
+Line.s: Line.cpp.s
+
+.PHONY : Line.s
+
+# target to generate assembly for a file
+Line.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Line.cpp.s
+.PHONY : Line.cpp.s
+
+MatDrawFunctions.o: MatDrawFunctions.cpp.o
+
+.PHONY : MatDrawFunctions.o
+
+# target to build an object file
+MatDrawFunctions.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o
+.PHONY : MatDrawFunctions.cpp.o
+
+MatDrawFunctions.i: MatDrawFunctions.cpp.i
+
+.PHONY : MatDrawFunctions.i
+
+# target to preprocess a source file
+MatDrawFunctions.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.i
+.PHONY : MatDrawFunctions.cpp.i
+
+MatDrawFunctions.s: MatDrawFunctions.cpp.s
+
+.PHONY : MatDrawFunctions.s
+
+# target to generate assembly for a file
+MatDrawFunctions.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.s
+.PHONY : MatDrawFunctions.cpp.s
+
+Puck.o: Puck.cpp.o
+
+.PHONY : Puck.o
+
+# target to build an object file
+Puck.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o
+.PHONY : Puck.cpp.o
+
+Puck.i: Puck.cpp.i
+
+.PHONY : Puck.i
+
+# target to preprocess a source file
+Puck.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Puck.cpp.i
+.PHONY : Puck.cpp.i
+
+Puck.s: Puck.cpp.s
+
+.PHONY : Puck.s
+
+# target to generate assembly for a file
+Puck.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Puck.cpp.s
+.PHONY : Puck.cpp.s
+
+Vector.o: Vector.cpp.o
+
+.PHONY : Vector.o
+
+# target to build an object file
+Vector.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Vector.cpp.o
+.PHONY : Vector.cpp.o
+
+Vector.i: Vector.cpp.i
+
+.PHONY : Vector.i
+
+# target to preprocess a source file
+Vector.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Vector.cpp.i
+.PHONY : Vector.cpp.i
+
+Vector.s: Vector.cpp.s
+
+.PHONY : Vector.s
+
+# target to generate assembly for a file
+Vector.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Vector.cpp.s
+.PHONY : Vector.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/main.cpp.o
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -210,7 +399,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -219,7 +408,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -230,13 +419,34 @@ help:
 	@echo "... depend"
 	@echo "... install/strip"
 	@echo "... edit_cache"
-	@echo "... opencv-calib-camera"
+	@echo "... fyp-logic-exe"
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
 	@echo "... install/local"
 	@echo "... install"
 	@echo "... uninstall"
 	@echo "... v4l2_helper"
+	@echo "... AirHockeyTable.o"
+	@echo "... AirHockeyTable.i"
+	@echo "... AirHockeyTable.s"
+	@echo "... Coordinate.o"
+	@echo "... Coordinate.i"
+	@echo "... Coordinate.s"
+	@echo "... Corner.o"
+	@echo "... Corner.i"
+	@echo "... Corner.s"
+	@echo "... Line.o"
+	@echo "... Line.i"
+	@echo "... Line.s"
+	@echo "... MatDrawFunctions.o"
+	@echo "... MatDrawFunctions.i"
+	@echo "... MatDrawFunctions.s"
+	@echo "... Puck.o"
+	@echo "... Puck.i"
+	@echo "... Puck.s"
+	@echo "... Vector.o"
+	@echo "... Vector.i"
+	@echo "... Vector.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

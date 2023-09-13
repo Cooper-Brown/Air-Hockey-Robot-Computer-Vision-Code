@@ -139,7 +139,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=OpenCV-Camera-Calibration
+CMAKE_PROJECT_NAME:STATIC=FYP-Logic-CPP
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -341,6 +341,12 @@ CUDA_npps_LIBRARY:FILEPATH=/usr/local/cuda-10.2/lib64/libnpps.so
 
 //Path to a library.
 CUDA_rt_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/librt.so
+
+//Value Computed by CMake
+FYP-Logic-CPP_BINARY_DIR:STATIC=/home/cooper/FYP_Logic_Cpp/build
+
+//Value Computed by CMake
+FYP-Logic-CPP_SOURCE_DIR:STATIC=/home/cooper/FYP_Logic_Cpp
 
 //Value Computed by CMake
 OpenCV-Camera-Calibration_BINARY_DIR:STATIC=/home/cooper/FYP_Logic_Cpp/build

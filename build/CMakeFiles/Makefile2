@@ -53,13 +53,13 @@ CMAKE_BINARY_DIR = /home/cooper/FYP_Logic_Cpp/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/opencv-calib-camera.dir/all
+all: CMakeFiles/fyp-logic-exe.dir/all
 all: lib/all
 
 .PHONY : all
 
 # The main recursive "clean" target.
-clean: CMakeFiles/opencv-calib-camera.dir/clean
+clean: CMakeFiles/fyp-logic-exe.dir/clean
 clean: lib/clean
 
 .PHONY : clean
@@ -70,31 +70,31 @@ preinstall: lib/preinstall
 .PHONY : preinstall
 
 #=============================================================================
-# Target rules for target CMakeFiles/opencv-calib-camera.dir
+# Target rules for target CMakeFiles/fyp-logic-exe.dir
 
 # All Build rule for target.
-CMakeFiles/opencv-calib-camera.dir/all: lib/CMakeFiles/v4l2_helper.dir/all
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/depend
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=1,2 "Built target opencv-calib-camera"
-.PHONY : CMakeFiles/opencv-calib-camera.dir/all
+CMakeFiles/fyp-logic-exe.dir/all: lib/CMakeFiles/v4l2_helper.dir/all
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/depend
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target fyp-logic-exe"
+.PHONY : CMakeFiles/fyp-logic-exe.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/opencv-calib-camera.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 4
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/opencv-calib-camera.dir/all
+CMakeFiles/fyp-logic-exe.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 11
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/fyp-logic-exe.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 0
-.PHONY : CMakeFiles/opencv-calib-camera.dir/rule
+.PHONY : CMakeFiles/fyp-logic-exe.dir/rule
 
 # Convenience name for target.
-opencv-calib-camera: CMakeFiles/opencv-calib-camera.dir/rule
+fyp-logic-exe: CMakeFiles/fyp-logic-exe.dir/rule
 
-.PHONY : opencv-calib-camera
+.PHONY : fyp-logic-exe
 
 # clean rule for target.
-CMakeFiles/opencv-calib-camera.dir/clean:
-	$(MAKE) -f CMakeFiles/opencv-calib-camera.dir/build.make CMakeFiles/opencv-calib-camera.dir/clean
-.PHONY : CMakeFiles/opencv-calib-camera.dir/clean
+CMakeFiles/fyp-logic-exe.dir/clean:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/clean
+.PHONY : CMakeFiles/fyp-logic-exe.dir/clean
 
 #=============================================================================
 # Directory level rules for directory lib
@@ -149,7 +149,7 @@ lib/CMakeFiles/uninstall.dir/clean:
 lib/CMakeFiles/v4l2_helper.dir/all:
 	$(MAKE) -f lib/CMakeFiles/v4l2_helper.dir/build.make lib/CMakeFiles/v4l2_helper.dir/depend
 	$(MAKE) -f lib/CMakeFiles/v4l2_helper.dir/build.make lib/CMakeFiles/v4l2_helper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=3,4 "Built target v4l2_helper"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=10,11 "Built target v4l2_helper"
 .PHONY : lib/CMakeFiles/v4l2_helper.dir/all
 
 # Build rule for subdir invocation for target.
