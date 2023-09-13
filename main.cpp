@@ -32,6 +32,8 @@
 #include "AirHockeyTable.hpp"
 #include "MatDrawFunctions.hpp"
 
+// A BUNCH OF REAL SPACE PARAMETERS FOR THE SYSTEM
+/*
 #define ENVIRONMENT_WIDTH 1760
 #define ENVIROMENT_HEIGHT 990
 #define TABLE_WIDTH 1620
@@ -39,6 +41,14 @@
 #define TABLE_CURVE_RADIUS 120
 #define PUCK_RADIUS 26
 #define MALLET_RADIUS 36
+*/
+
+#define CAM_INPUT_WIDTH 1280
+#define CAM_INPUT_HEIGHT 720
+#define CAM_INPUT_DEVICE "/dev/video0"
+
+#define CAM_RESCALED_WIDTH 640
+#define CAM_RESCALED_HEIGHT 360
 
 unsigned int GetTickCount()
 {
@@ -50,19 +60,21 @@ unsigned int GetTickCount()
 }
 
 int main() {
-    unsigned int width = 1280;
-    unsigned int height = 720;
-	const char* videodev = "/dev/video0";
+    // Used to access image through V4L2 helper library
 	unsigned char* ptr_cam_frame;
 	int bytes_used;
+
+    // Used to calculate FPS statistics
     unsigned int start, end;
 
+    // Set the GPU to use
     cv::cuda::setDevice(0);
-    //cv::cuda::checkCudaErrors(cudaGetLastError());
 
+    // Set up a window to display a live feed
     cv::namedWindow("TRAHT_Vision");
-    
-    if (helper_init_cam(videodev, width, height, V4L2_PIX_FMT_UYVY, IO_METHOD_USERPTR) < 0) {
+
+    // INITIALISE THE V4L2 HELPER LIBRARY
+    if (helper_init_cam(CAM_INPUT_DEVICE, CAM_INPUT_WIDTH, CAM_INPUT_HEIGHT, V4L2_PIX_FMT_UYVY, IO_METHOD_USERPTR) < 0) {
         std::cout << "Error: Failed to initialise camera.\n";
         return 0;
     }
@@ -79,35 +91,26 @@ int main() {
     double sigmaX = 2.0;        // Adjust sigmaX as needed
     double sigmaY = 2.0;        // Adjust sigmaY as needed
     cv::Ptr<cv::cuda::Filter> gaussianFilter = cv::cuda::createGaussianFilter(CV_8UC3, CV_8UC3, kernelSize, sigmaX, sigmaY);
-    
+
+    // Set up the circle detector. Currently set up for green circle detection
+    float dp = 1.75;
+    float minDist = 10;
+    int cannyThreshold = 300;
+    int votesThreshold = 40;
+    int minRadius = 5;
+    int maxRadius = 30;
+    int maxQuantity = 1;
+    cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorGreen = cv::cuda::createHoughCirclesDetector(
+        dp, minDist, cannyThreshold, votesThreshold, minRadius, maxRadius, maxQuantity
+    );
+    cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorRed = cv::cuda::createHoughCirclesDetector(
+        dp, minDist, cannyThreshold, votesThreshold, minRadius, maxRadius
+    );
+
     // The image will be rescaled to this resolution
-    cv::Size rescaledSize(640, 360);
+    cv::Size rescaledSize(CAM_RESCALED_WIDTH, CAM_RESCALED_HEIGHT);
 
-    // Parameters for the circle detector
-    cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorI = cv::cuda::createHoughCirclesDetector(1.75, 10, 200, 40, 1, 20);
-
-    // Instantiate all of the temporary variables we need, so they aren't in the loop.
-    cv::Mat cpuFrame = cv::Mat(height, width, CV_8UC2);
-    cv::Mat undistortedImage = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
-    cv::Mat cpuFrameBlurred = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
-    cv::Mat cpuFrameBGR = cv::Mat(height, width, CV_8UC3);
-    cv::Mat cpuFrameConverted;
-    cv::Mat cpuFrameResized = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);;
-    cv::cuda::GpuMat gpuFrameDownscaled = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC1);
-    cv::cuda::GpuMat gpuFrameBlurred = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC1);
-    cv::cuda::GpuMat gpuFrame;
-    cv::cuda::GpuMat gpuFrame_channels[3];
-    cv::cuda::GpuMat redChannelGPU;
-    cv::cuda::GpuMat greenChannelGPU;
-
-    cv::cuda::GpuMat detectedGreenCirclesGPU;
-    cv::cuda::GpuMat detectedRedCirclesGPU;
-    std::vector<cv::Vec3f> detectedGreenCircles;
-    std::vector<cv::Vec3f> detectedRedCircles;
-    cv::Mat detectedGreenCircles2;
-    cv::Mat detectedRedCircles2;
-    std::cout << "Finished configuration, starting loop..." << std::endl;
-
+    // Set up the pixel-space representation of the table
     float AHT_x = rescaledSize.width-40;
     float AHT_y = rescaledSize.height-80;
     float AHT_r = 40;
@@ -115,10 +118,35 @@ int main() {
     float AHT_yOffset = (rescaledSize.height - AHT_y)/2 + 5;
     AirHockeyTable pixelSpaceTable(AHT_x, AHT_y, AHT_r, AHT_xOffset, AHT_yOffset);
 
+    // Instantiate all of the temporary variables we need.
+    cv::Mat cpuFrame = cv::Mat(CAM_INPUT_HEIGHT, CAM_INPUT_WIDTH, CV_8UC2);
+    cv::Mat cpuFrameBGR = cv::Mat(CAM_INPUT_HEIGHT, CAM_INPUT_WIDTH, CV_8UC3);
+    cv::Mat cpuFrameResized = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+    cv::Mat undistortedImage = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+
+    cv::cuda::GpuMat gpuFrame = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+    cv::cuda::GpuMat gpuFrame_channels[3];
+    cv::cuda::GpuMat detectedGreenCirclesGPU;
+    cv::cuda::GpuMat detectedRedCirclesGPU;
+
+    std::vector<cv::Vec3f> detectedGreenCircles;
+    std::vector<cv::Vec3f> detectedRedCircles;
+
+    // BGR
+    // A lot of green
+    // little red
+    // little blue
+    cv::Scalar lowerBound(0, 175, 0);   // Lower bound for bright green (B, G, R)
+    cv::Scalar upperBound(50, 255, 50); // Upper bound for bright green (B, G, R)
+    cv::Mat gpuMask;
+
+    std::cout << "Finished configuration, starting game..." << std::endl;
+
     while (1) {
+        // Used for getting FPS counter
         start = GetTickCount();
 
-        // on escape key, exit the 
+        // on escape key in window, exit the program
         if(cv::waitKey(1) == 27) break;
 
         // Get the camera frame
@@ -132,41 +160,51 @@ int main() {
             return 0;
         }
 
-        // Run Image Processing
+        // Run Image Processing to get base processable image
         cv::cvtColor(cpuFrame, cpuFrameBGR, cv::COLOR_YUV2BGR_UYVY);
         cv::resize(cpuFrameBGR, cpuFrameResized, rescaledSize, cv::INTER_LINEAR);
         cv::undistort(cpuFrameResized, undistortedImage, cameraMatrix, distCoeffs);
-        
-        gpuFrame = cv::cuda::GpuMat(undistortedImage);
-        //cv::cuda::resize(gpuFrame, gpuFrameDownscaled, rescaledSize, INTER_LINEAR);
-        // Apply Gaussian blur using the filter function
-        gaussianFilter->apply(gpuFrame, gpuFrameBlurred);
-        cv::cuda::split(gpuFrameBlurred, gpuFrame_channels);
-        greenChannelGPU = gpuFrame_channels[1];
-        redChannelGPU = gpuFrame_channels[2];
-        houghCircleDetectorI->detect(greenChannelGPU, detectedGreenCirclesGPU);
-        houghCircleDetectorI->detect(redChannelGPU, detectedRedCirclesGPU);
 
-        // ERROR GETS THROWN IN THE NEXT TWO LINES IF NO CIRCLES CAN BE FOUND
+        gpuFrame = cv::cuda::GpuMat(undistortedImage);
+        
+        // Find Circles
+        gaussianFilter->apply(gpuFrame, gpuFrame);
+
+        cv::inRange(undistortedImage, lowerBound, upperBound, gpuMask);
+
+        gpuFrame.setTo(cv::Scalar(0, 0, 0), cv::cuda::GpuMat(gpuMask));
+
+        cv::Mat displayImage;
+        gpuFrame.download(undistortedImage);
+        cv::cuda::split(gpuFrame, gpuFrame_channels);
+        houghCircleDetectorGreen->detect(gpuFrame_channels[1], detectedGreenCirclesGPU);
+        houghCircleDetectorRed->detect(gpuFrame_channels[2], detectedRedCirclesGPU);
+
+        // Draw Circles
+        // We only want to download the circles GPU_MAT if circles are detected, otherwise an error will be thrown. 
         if (!detectedGreenCirclesGPU.empty()) {
             detectedGreenCirclesGPU.download(detectedGreenCircles);
             drawDetectedCircles(undistortedImage, detectedGreenCircles);
         }
         if (!detectedRedCirclesGPU.empty()) {
             detectedRedCirclesGPU.download(detectedRedCircles);
-            drawDetectedCircles(undistortedImage, detectedRedCircles);
+            //drawDetectedCircles(undistortedImage, detectedRedCircles);
         }
 
+        // Draw the hockey table outline to the display.
         pixelSpaceTable.draw(undistortedImage);
         
+        // Update display
         imshow("TRAHT_Vision", undistortedImage);
 
         helper_release_cam_frame();
 
+        // FPS calculations
         end = GetTickCount();
 		std::cout << 1000/(end-start) << "fps" << std::endl;
     }
 
+    // When the program exits, uninitialise the V4L2 helper library.
     if (helper_deinit_cam() < 0)
 	{
 		return EXIT_FAILURE;

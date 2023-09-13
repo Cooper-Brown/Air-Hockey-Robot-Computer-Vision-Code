@@ -6,8 +6,9 @@
 
 class Puck {
     public:
-        Coordinate center;
+        Coordinate center, lastKnownCenter;
         Vector velocity;
+        bool puckLost;
         Puck();
 
 };

@@ -6,12 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/cooper/FYP_Logic_Cpp/AirHockeyTable.cpp
-AirHockeyTable.hpp
-/home/cooper/FYP_Logic_Cpp/AirHockeyTable.hpp
-MatDrawFunctions.hpp
-/home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
-
 /home/cooper/FYP_Logic_Cpp/AirHockeyTable.hpp
 opencv2/opencv.hpp
 -
