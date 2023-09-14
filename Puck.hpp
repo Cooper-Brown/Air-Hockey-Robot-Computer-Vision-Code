@@ -3,14 +3,19 @@
 
 #include "Coordinate.hpp"
 #include "Vector.hpp"
+#include <opencv2/opencv.hpp>
 
 class Puck {
     public:
         Coordinate center, lastKnownCenter;
         Vector velocity;
-        bool puckLost;
+        bool puckLost, noPrevPosition;
+        unsigned int lastUpdateTime;
+        float radius;
         Puck();
-
+        void update(cv::Vec3f positionalData);
+        void draw(cv::Mat imageToDrawOn);
+        void registerLostPuck();
 };
 
 #endif

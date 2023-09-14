@@ -5,6 +5,8 @@
 #include "Line.hpp"
 
 void drawBorderLine(cv::Mat image, Line line);
+void drawVelocityLine(cv::Mat image, Line line);
 void drawDetectedCircles(cv::Mat image, std::vector<cv::Vec3f> circles);
+unsigned int GetTickCount();
 
 #endif

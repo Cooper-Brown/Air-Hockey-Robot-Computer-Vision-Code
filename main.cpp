@@ -50,14 +50,6 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
-unsigned int GetTickCount()
-{
-        struct timeval tv;
-        if(gettimeofday(&tv, NULL) != 0)
-                return 0;
- 
-        return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-}
 
 int main() {
     // Used to access image through V4L2 helper library
@@ -96,9 +88,9 @@ int main() {
     float dp = 1.75;
     float minDist = 10;
     int cannyThreshold = 300;
-    int votesThreshold = 40;
-    int minRadius = 5;
-    int maxRadius = 30;
+    int votesThreshold = 30;
+    int minRadius = 8;
+    int maxRadius = 14;
     int maxQuantity = 1;
     cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorGreen = cv::cuda::createHoughCirclesDetector(
         dp, minDist, cannyThreshold, votesThreshold, minRadius, maxRadius, maxQuantity
@@ -136,11 +128,13 @@ int main() {
     // A lot of green
     // little red
     // little blue
-    cv::Scalar lowerBound(0, 175, 0);   // Lower bound for bright green (B, G, R)
-    cv::Scalar upperBound(50, 255, 50); // Upper bound for bright green (B, G, R)
+    cv::Scalar lowerBound(0, 50, 0);   // Lower bound for bright green (B, G, R)
+    cv::Scalar upperBound(220, 255, 220); // Upper bound for bright green (B, G, R)
     cv::Mat gpuMask;
 
     std::cout << "Finished configuration, starting game..." << std::endl;
+
+    Puck greenPuck = Puck();
 
     while (1) {
         // Used for getting FPS counter
@@ -167,25 +161,30 @@ int main() {
 
         gpuFrame = cv::cuda::GpuMat(undistortedImage);
         
-        // Find Circles
-        gaussianFilter->apply(gpuFrame, gpuFrame);
-
-        cv::inRange(undistortedImage, lowerBound, upperBound, gpuMask);
-
-        gpuFrame.setTo(cv::Scalar(0, 0, 0), cv::cuda::GpuMat(gpuMask));
-
         cv::Mat displayImage;
-        gpuFrame.download(undistortedImage);
-        cv::cuda::split(gpuFrame, gpuFrame_channels);
-        houghCircleDetectorGreen->detect(gpuFrame_channels[1], detectedGreenCirclesGPU);
-        houghCircleDetectorRed->detect(gpuFrame_channels[2], detectedRedCirclesGPU);
+        // Find Circles
+        if (1) {
+            gaussianFilter->apply(gpuFrame, gpuFrame);
+            //cv::inRange(undistortedImage, lowerBound, upperBound, gpuMask);
+            //gpuFrame.setTo(cv::Scalar(0, 0, 0), cv::cuda::GpuMat(gpuMask));
+            //gpuFrame.download(undistortedImage);
+            cv::cuda::split(gpuFrame, gpuFrame_channels);
+            houghCircleDetectorGreen->detect(gpuFrame_channels[1], detectedGreenCirclesGPU);
+            houghCircleDetectorRed->detect(gpuFrame_channels[2], detectedRedCirclesGPU);
+        }
+
 
         // Draw Circles
         // We only want to download the circles GPU_MAT if circles are detected, otherwise an error will be thrown. 
-        if (!detectedGreenCirclesGPU.empty()) {
-            detectedGreenCirclesGPU.download(detectedGreenCircles);
-            drawDetectedCircles(undistortedImage, detectedGreenCircles);
+        if (detectedGreenCirclesGPU.empty()) {
+            greenPuck.registerLostPuck();
         }
+        else {
+            detectedGreenCirclesGPU.download(detectedGreenCircles);
+            greenPuck.update(detectedGreenCircles[0]);
+            greenPuck.draw(undistortedImage);
+        }
+
         if (!detectedRedCirclesGPU.empty()) {
             detectedRedCirclesGPU.download(detectedRedCircles);
             //drawDetectedCircles(undistortedImage, detectedRedCircles);
@@ -201,7 +200,7 @@ int main() {
 
         // FPS calculations
         end = GetTickCount();
-		std::cout << 1000/(end-start) << "fps" << std::endl;
+		//std::cout << 1000/(end-start) << "fps" << std::endl;
     }
 
     // When the program exits, uninitialise the V4L2 helper library.

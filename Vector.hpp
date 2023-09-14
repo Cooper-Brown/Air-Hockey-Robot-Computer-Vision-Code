@@ -3,10 +3,11 @@
 
 class Vector {
     public:
-        int xComponent, yComponent;
+        float xComponent, yComponent;
         Vector();
-        Vector(int xComponentIn, int yComponentIn);
-        int getLength();
+        Vector(float xComponentIn, float yComponentIn);
+        float getLength();
+        Vector getUnitVector();
 };
 
 #endif
