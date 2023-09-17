@@ -5,6 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/fyp-logic-exe.dir/Line.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o"
+  "CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Vector.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/main.cpp.o"
   "fyp-logic-exe"

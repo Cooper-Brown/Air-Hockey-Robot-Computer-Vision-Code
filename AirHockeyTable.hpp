@@ -8,7 +8,7 @@
 class AirHockeyTable {
     public:
         float x, y, r, xOffset, yOffset;
-        Line topLine, bottomLine, leftLine, rightLine;
+        Line topLine, bottomLine, leftLine, rightLine, playerWinGoalLine, robotWinGoalLine;
         Corner topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
         AirHockeyTable();
         AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn, float yOffsetIn);

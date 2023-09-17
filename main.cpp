@@ -31,6 +31,7 @@
 #include "Puck.hpp"
 #include "AirHockeyTable.hpp"
 #include "MatDrawFunctions.hpp"
+#include "StmCommunicator.hpp"
 
 // A BUNCH OF REAL SPACE PARAMETERS FOR THE SYSTEM
 /*
@@ -50,8 +51,19 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
+#define TABLE_X_BOUNDARY_MIN 2000
+#define TABLE_X_BOUNDARY_MAX 15100
+#define TABLE_Y_BOUNDARY_MIN 2000
+#define TABLE_Y_BOUNDARY_MAX 17300
 
 int main() {
+
+    StmCommunicator stmComms = StmCommunicator();
+    bool connected = stmComms.connect();
+    if (!connected){
+        std::cout << "ERROR: Connection could not be established. Signals will not be sent to board" << std::endl;
+    }
+
     // Used to access image through V4L2 helper library
 	unsigned char* ptr_cam_frame;
 	int bytes_used;
@@ -132,9 +144,28 @@ int main() {
     cv::Scalar upperBound(220, 255, 220); // Upper bound for bright green (B, G, R)
     cv::Mat gpuMask;
 
-    std::cout << "Finished configuration, starting game..." << std::endl;
-
     Puck greenPuck = Puck();
+
+    std::cout << "Finished configuration, hit space to start game..." << std::endl;
+
+    if (connected){
+        while(!(cv::waitKey(0) == 32)) sleep(0.01); // wait forever on space key (From ascii table)
+        stmComms.enableBoard();
+    }
+
+    sleep(3);
+
+    Coordinate dummyTargetCoordinate(7500, 7500);
+    if (connected) {
+        stmComms.setCoordinate(dummyTargetCoordinate);
+    }
+
+    sleep(3);
+    
+    dummyTargetCoordinate = Coordinate(3000, 3000);
+    if (connected) {
+        stmComms.setCoordinate(dummyTargetCoordinate);
+    }
 
     while (1) {
         // Used for getting FPS counter
@@ -176,7 +207,7 @@ int main() {
 
         // Draw Circles
         // We only want to download the circles GPU_MAT if circles are detected, otherwise an error will be thrown. 
-        if (detectedGreenCirclesGPU.empty()) {
+        if (detectedGreenCirclesGPU.empty()) { 
             greenPuck.registerLostPuck();
         }
         else {
@@ -202,6 +233,8 @@ int main() {
         end = GetTickCount();
 		//std::cout << 1000/(end-start) << "fps" << std::endl;
     }
+
+    stmComms.disconnect();
 
     // When the program exits, uninitialise the V4L2 helper library.
     if (helper_deinit_cam() < 0)

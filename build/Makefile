@@ -357,6 +357,33 @@ Puck.cpp.s:
 	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Puck.cpp.s
 .PHONY : Puck.cpp.s
 
+StmCommunicator.o: StmCommunicator.cpp.o
+
+.PHONY : StmCommunicator.o
+
+# target to build an object file
+StmCommunicator.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o
+.PHONY : StmCommunicator.cpp.o
+
+StmCommunicator.i: StmCommunicator.cpp.i
+
+.PHONY : StmCommunicator.i
+
+# target to preprocess a source file
+StmCommunicator.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.i
+.PHONY : StmCommunicator.cpp.i
+
+StmCommunicator.s: StmCommunicator.cpp.s
+
+.PHONY : StmCommunicator.s
+
+# target to generate assembly for a file
+StmCommunicator.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.s
+.PHONY : StmCommunicator.cpp.s
+
 Vector.o: Vector.cpp.o
 
 .PHONY : Vector.o
@@ -444,6 +471,9 @@ help:
 	@echo "... Puck.o"
 	@echo "... Puck.i"
 	@echo "... Puck.s"
+	@echo "... StmCommunicator.o"
+	@echo "... StmCommunicator.i"
+	@echo "... StmCommunicator.s"
 	@echo "... Vector.o"
 	@echo "... Vector.i"
 	@echo "... Vector.s"

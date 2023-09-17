@@ -10,10 +10,12 @@ set (CORNER_CLASS_SOURCE "./Corner.cpp")
 set (PUCK_CLASS_SOURCE "./Puck.cpp")
 set (AIR_HOCKEY_TABLE_CLASS_SOURCE "./AirHockeyTable.cpp")
 set (MAT_DRAW_FUNCTIONS_CLASS_SOURCE "./MatDrawFunctions.cpp")
+set (STM_COMMUNICATOR_CLASS_SOURCE "./StmCommunicator.cpp")
 
 set (PROJ_BIN_LABEL "fyp-logic-exe")
 
 find_package( OpenCV REQUIRED )
+find_package( CppLinuxSerial REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 # Include the directories containing libraries
@@ -35,11 +37,13 @@ add_executable (
     ${CORNER_CLASS_SOURCE} 
     ${PUCK_CLASS_SOURCE} 
     ${AIR_HOCKEY_TABLE_CLASS_SOURCE} 
-    ${MAT_DRAW_FUNCTIONS_CLASS_SOURCE}
+    ${MAT_DRAW_FUNCTIONS_CLASS_SOURCE} 
+    ${STM_COMMUNICATOR_CLASS_SOURCE}
 )
 target_include_directories (${PROJ_BIN_LABEL} PUBLIC ${V4L2_HELPER_LIB_INCLUDE_DIR})
 target_link_libraries (${PROJ_BIN_LABEL} v4l2_helper)
 target_link_libraries (${PROJ_BIN_LABEL} ${OpenCV_LIBS})
+target_link_libraries(${PROJ_BIN_LABEL} CppLinuxSerial)
 
 install (
 	TARGETS

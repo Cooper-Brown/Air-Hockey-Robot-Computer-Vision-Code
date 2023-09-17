@@ -342,6 +342,9 @@ CUDA_npps_LIBRARY:FILEPATH=/usr/local/cuda-10.2/lib64/libnpps.so
 //Path to a library.
 CUDA_rt_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/librt.so
 
+//The directory containing a CMake configuration file for CppLinuxSerial.
+CppLinuxSerial_DIR:PATH=/usr/local/lib/cmake/CppLinuxSerial
+
 //Value Computed by CMake
 FYP-Logic-CPP_BINARY_DIR:STATIC=/home/cooper/FYP_Logic_Cpp/build
 

@@ -21,6 +21,9 @@ AirHockeyTable::AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn,
     topRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + y - r), r);
     bottomRightCorner = Corner(Coordinate(xOffset + x - r, yOffset + r), r);
     bottomLeftCorner = Corner(Coordinate(xOffset + r, yOffset + r), r);
+
+    playerWinGoalLine = Line();
+    robotWinGoalLine = Line();
 }
 
 void AirHockeyTable::draw(cv::Mat imageToDrawOn) {
