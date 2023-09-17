@@ -37,7 +37,7 @@ void Puck::update(cv::Vec3f positionalData) {
     }
 
     if ((velocity.xComponent != 0) || (velocity.yComponent != 0)) {
-        std::cout << velocity.xComponent << " " << velocity.yComponent << std::endl;
+        //std::cout << velocity.xComponent << " " << velocity.yComponent << std::endl;
     }
 
     lastKnownCenter = center;
