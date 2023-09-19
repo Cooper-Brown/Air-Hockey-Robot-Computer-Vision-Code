@@ -76,12 +76,12 @@ preinstall: lib/preinstall
 CMakeFiles/fyp-logic-exe.dir/all: lib/CMakeFiles/v4l2_helper.dir/all
 	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/depend
 	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target fyp-logic-exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target fyp-logic-exe"
 .PHONY : CMakeFiles/fyp-logic-exe.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/fyp-logic-exe.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 12
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 13
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/fyp-logic-exe.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/cooper/FYP_Logic_Cpp/build/CMakeFiles 0
 .PHONY : CMakeFiles/fyp-logic-exe.dir/rule
@@ -149,7 +149,7 @@ lib/CMakeFiles/uninstall.dir/clean:
 lib/CMakeFiles/v4l2_helper.dir/all:
 	$(MAKE) -f lib/CMakeFiles/v4l2_helper.dir/build.make lib/CMakeFiles/v4l2_helper.dir/depend
 	$(MAKE) -f lib/CMakeFiles/v4l2_helper.dir/build.make lib/CMakeFiles/v4l2_helper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=11,12 "Built target v4l2_helper"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/cooper/FYP_Logic_Cpp/build/CMakeFiles --progress-num=12,13 "Built target v4l2_helper"
 .PHONY : lib/CMakeFiles/v4l2_helper.dir/all
 
 # Build rule for subdir invocation for target.

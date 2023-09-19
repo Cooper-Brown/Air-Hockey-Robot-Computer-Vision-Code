@@ -11,6 +11,7 @@ set (PUCK_CLASS_SOURCE "./Puck.cpp")
 set (AIR_HOCKEY_TABLE_CLASS_SOURCE "./AirHockeyTable.cpp")
 set (MAT_DRAW_FUNCTIONS_CLASS_SOURCE "./MatDrawFunctions.cpp")
 set (STM_COMMUNICATOR_CLASS_SOURCE "./StmCommunicator.cpp")
+set (GAME_STATE_CLASS_SOURCE "./GameState.cpp")
 
 set (PROJ_BIN_LABEL "fyp-logic-exe")
 
@@ -38,7 +39,8 @@ add_executable (
     ${PUCK_CLASS_SOURCE} 
     ${AIR_HOCKEY_TABLE_CLASS_SOURCE} 
     ${MAT_DRAW_FUNCTIONS_CLASS_SOURCE} 
-    ${STM_COMMUNICATOR_CLASS_SOURCE}
+    ${STM_COMMUNICATOR_CLASS_SOURCE} 
+    ${GAME_STATE_CLASS_SOURCE}
 )
 target_include_directories (${PROJ_BIN_LABEL} PUBLIC ${V4L2_HELPER_LIB_INCLUDE_DIR})
 target_link_libraries (${PROJ_BIN_LABEL} v4l2_helper)

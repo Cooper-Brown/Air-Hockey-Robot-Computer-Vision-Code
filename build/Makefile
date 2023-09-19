@@ -276,6 +276,33 @@ Corner.cpp.s:
 	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/Corner.cpp.s
 .PHONY : Corner.cpp.s
 
+GameState.o: GameState.cpp.o
+
+.PHONY : GameState.o
+
+# target to build an object file
+GameState.cpp.o:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o
+.PHONY : GameState.cpp.o
+
+GameState.i: GameState.cpp.i
+
+.PHONY : GameState.i
+
+# target to preprocess a source file
+GameState.cpp.i:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/GameState.cpp.i
+.PHONY : GameState.cpp.i
+
+GameState.s: GameState.cpp.s
+
+.PHONY : GameState.s
+
+# target to generate assembly for a file
+GameState.cpp.s:
+	$(MAKE) -f CMakeFiles/fyp-logic-exe.dir/build.make CMakeFiles/fyp-logic-exe.dir/GameState.cpp.s
+.PHONY : GameState.cpp.s
+
 Line.o: Line.cpp.o
 
 .PHONY : Line.o
@@ -462,6 +489,9 @@ help:
 	@echo "... Corner.o"
 	@echo "... Corner.i"
 	@echo "... Corner.s"
+	@echo "... GameState.o"
+	@echo "... GameState.i"
+	@echo "... GameState.s"
 	@echo "... Line.o"
 	@echo "... Line.i"
 	@echo "... Line.s"

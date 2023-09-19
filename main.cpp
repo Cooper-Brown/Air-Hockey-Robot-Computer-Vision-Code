@@ -32,6 +32,7 @@
 #include "AirHockeyTable.hpp"
 #include "MatDrawFunctions.hpp"
 #include "StmCommunicator.hpp"
+#include "GameState.hpp"
 
 // A BUNCH OF REAL SPACE PARAMETERS FOR THE SYSTEM
 /*
@@ -114,13 +115,7 @@ int main() {
     // The image will be rescaled to this resolution
     cv::Size rescaledSize(CAM_RESCALED_WIDTH, CAM_RESCALED_HEIGHT);
 
-    // Set up the pixel-space representation of the table
-    float AHT_x = rescaledSize.width-40;
-    float AHT_y = rescaledSize.height-80;
-    float AHT_r = 40;
-    float AHT_xOffset = (rescaledSize.width - AHT_x)/2;
-    float AHT_yOffset = (rescaledSize.height - AHT_y)/2 + 5;
-    AirHockeyTable pixelSpaceTable(AHT_x, AHT_y, AHT_r, AHT_xOffset, AHT_yOffset);
+    GameState gameStateInstance(rescaledSize);
 
     // Instantiate all of the temporary variables we need.
     cv::Mat cpuFrame = cv::Mat(CAM_INPUT_HEIGHT, CAM_INPUT_WIDTH, CV_8UC2);
@@ -144,14 +139,14 @@ int main() {
     cv::Scalar upperBound(220, 255, 220); // Upper bound for bright green (B, G, R)
     cv::Mat gpuMask;
 
-    Puck greenPuck = Puck();
-
     std::cout << "Finished configuration, hit space to start game..." << std::endl;
 
     if (connected){
         while(!(cv::waitKey(0) == 32)) sleep(0.01); // wait forever on space key (From ascii table)
         stmComms.enableBoard();
     }
+
+    std::cout << "Game Started" << std::endl;
 
     sleep(3);
 
@@ -192,7 +187,6 @@ int main() {
 
         gpuFrame = cv::cuda::GpuMat(undistortedImage);
         
-        cv::Mat displayImage;
         // Find Circles
         if (1) {
             gaussianFilter->apply(gpuFrame, gpuFrame);
@@ -208,12 +202,12 @@ int main() {
         // Draw Circles
         // We only want to download the circles GPU_MAT if circles are detected, otherwise an error will be thrown. 
         if (detectedGreenCirclesGPU.empty()) { 
-            greenPuck.registerLostPuck();
+            gameStateInstance.registerLostPuck();
         }
         else {
             detectedGreenCirclesGPU.download(detectedGreenCircles);
-            greenPuck.update(detectedGreenCircles[0]);
-            greenPuck.draw(undistortedImage);
+            gameStateInstance.updatePuckPosition(detectedGreenCircles[0]);
+            gameStateInstance.greenPuck.draw(undistortedImage);
         }
 
         if (!detectedRedCirclesGPU.empty()) {
@@ -222,7 +216,7 @@ int main() {
         }
 
         // Draw the hockey table outline to the display.
-        pixelSpaceTable.draw(undistortedImage);
+        gameStateInstance.pixelSpaceTable.draw(undistortedImage);
         
         // Update display
         imshow("TRAHT_Vision", undistortedImage);

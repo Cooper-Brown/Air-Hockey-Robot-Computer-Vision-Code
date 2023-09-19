@@ -4,12 +4,53 @@
 
 #define COLOR_PURPLE cv::Scalar(255,0,255)
 #define COLOR_BLUE cv::Scalar(255,0,0)
+#define COLOR_RED cv::Scalar(0,0,255)
+
+// Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
+// intersect the intersection point may be stored in the floats i_x and i_y.
+// FUNCTION TAKEN FROM https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint)
+{
+    // committing efficiency sin for the sake of readability. I have full faith in the compiler. 
+    float p0_x = line1.p1.x;    float p0_y = line1.p1.y;
+    float p1_x = line1.p2.x;    float p1_y = line1.p2.y;
+    float p2_x = line2.p1.x;    float p2_y = line2.p1.x;
+    float p3_x = line2.p2.x;    float p3_y = line2.p2.y;
+
+    float s1_x, s1_y, s2_x, s2_y;
+    s1_x = p1_x - p0_x;     s1_y = p1_y - p0_y;
+    s2_x = p3_x - p2_x;     s2_y = p3_y - p2_y;
+
+    float s, t;
+    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+        // Collision detected
+        if (intersectionPoint != NULL) {
+            intersectionPoint->x = p0_x + (t * s1_x);
+            intersectionPoint->y = p0_y + (t * s1_y);
+        }
+            
+        return true;
+    }
+
+    return false; // No collision
+}
 
 void drawBorderLine(cv::Mat image, Line line) {
     cv::Point p1(line.p1.x, line.p1.y);
     cv::Point p2(line.p2.x, line.p2.y);
     int thickness = 2;
     cv::line(image, p1, p2, COLOR_PURPLE, thickness, cv::LINE_4);
+}
+
+void drawGoalLine(cv::Mat image, Line line) {
+    cv::Point p1(line.p1.x, line.p1.y);
+    cv::Point p2(line.p2.x, line.p2.y);
+    int thickness = 2;
+    cv::line(image, p1, p2, COLOR_RED, thickness, cv::LINE_4);
 }
 
 void drawVelocityLine(cv::Mat image, Line line) {

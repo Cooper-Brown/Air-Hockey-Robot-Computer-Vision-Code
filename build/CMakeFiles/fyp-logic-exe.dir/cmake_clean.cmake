@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/fyp-logic-exe.dir/AirHockeyTable.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Coordinate.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Corner.cpp.o"
+  "CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Line.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o"
   "CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o"

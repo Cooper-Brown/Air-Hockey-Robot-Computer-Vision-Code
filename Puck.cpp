@@ -54,9 +54,8 @@ void Puck::draw(cv::Mat imageToDrawOn){
     std::vector<cv::Vec3f> detectedGreenCircles(1);
     detectedGreenCircles[0] = cv::Vec3f(center.x, center.y, radius);
     drawDetectedCircles(imageToDrawOn, detectedGreenCircles);
-
-    Vector puckUnitVelocity = velocity.getUnitVector();
-    Coordinate unitVectorEndpoint(center.x + 100.0*puckUnitVelocity.xComponent, center.y + 100.0*puckUnitVelocity.yComponent);
+    
+    Coordinate unitVectorEndpoint(center.x + velocity.xComponent/10.0, center.y + velocity.yComponent/10.0);
     Line velocityRepresentation(center, unitVectorEndpoint);
     drawVelocityLine(imageToDrawOn, velocityRepresentation);
     

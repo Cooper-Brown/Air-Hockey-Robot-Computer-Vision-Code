@@ -22,6 +22,9 @@ bool StmCommunicator::connect(){
 }
 
 void StmCommunicator::disconnect(){
+    if (!connectionEstablished){
+        return;
+    }
     serialPort.Write("R\n");
     serialPort.Close();
     connectionEstablished = false;

@@ -5,6 +5,8 @@
 #include "Line.hpp"
 #include "Corner.hpp"
 
+#define GOAL_LENGTH_REDUCTION_AMOUNT 50
+
 class AirHockeyTable {
     public:
         float x, y, r, xOffset, yOffset;
