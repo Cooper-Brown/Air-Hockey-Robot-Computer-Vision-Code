@@ -57,13 +57,17 @@
 #define TABLE_Y_BOUNDARY_MIN 2000
 #define TABLE_Y_BOUNDARY_MAX 17300
 
-int main() {
+//#define CONNECT_TO_BOARD
 
+int main() {
     StmCommunicator stmComms = StmCommunicator();
-    bool connected = stmComms.connect();
+    bool connected = false;
+    #ifdef CONNECT_TO_BOARD
+    connected = stmComms.connect();
     if (!connected){
         std::cout << "ERROR: Connection could not be established. Signals will not be sent to board" << std::endl;
     }
+    #endif
 
     // Used to access image through V4L2 helper library
 	unsigned char* ptr_cam_frame;
@@ -206,7 +210,7 @@ int main() {
         }
         else {
             detectedGreenCirclesGPU.download(detectedGreenCircles);
-            gameStateInstance.updatePuckPosition(detectedGreenCircles[0]);
+            gameStateInstance.updatePuckPosition(detectedGreenCircles[0], undistortedImage);
             gameStateInstance.greenPuck.draw(undistortedImage);
         }
 
@@ -217,6 +221,9 @@ int main() {
 
         // Draw the hockey table outline to the display.
         gameStateInstance.pixelSpaceTable.draw(undistortedImage);
+
+        // DEBUGGING
+        circle(undistortedImage, cv::Point(10, 10), 5, cv::Scalar(255, 255, 0), 2);
         
         // Update display
         imshow("TRAHT_Vision", undistortedImage);

@@ -10,7 +10,10 @@
 class AirHockeyTable {
     public:
         float x, y, r, xOffset, yOffset;
-        Line topLine, bottomLine, leftLine, rightLine, playerWinGoalLine, robotWinGoalLine;
+        Line topLine, bottomLine, leftLine, rightLine;
+        Line playerWinGoalLine, robotWinGoalLine;
+        Line robotBoundaryTopLine, robotBoundaryBottomLine, robotBoundaryLeftLine, robotBoundaryRightLine;
+        Line testLine;
         Corner topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
         AirHockeyTable();
         AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn, float yOffsetIn);

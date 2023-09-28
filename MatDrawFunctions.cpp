@@ -11,7 +11,6 @@
 // FUNCTION TAKEN FROM https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint)
 {
-    // committing efficiency sin for the sake of readability. I have full faith in the compiler. 
     float p0_x = line1.p1.x;    float p0_y = line1.p1.y;
     float p1_x = line1.p2.x;    float p1_y = line1.p2.y;
     float p2_x = line2.p1.x;    float p2_y = line2.p1.x;
@@ -37,6 +36,31 @@ bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint)
     }
 
     return false; // No collision
+}
+
+bool getLineIntersection2(Line line1, Line line2, Coordinate* intersectionPoint){
+    float x1 = line1.p1.x;         float y1 = line1.p1.y;
+    float x2 = line1.p2.x;         float y2 = line1.p2.y;
+    float x3 = line2.p1.x;         float y3 = line2.p1.y;
+    float x4 = line2.p2.x;         float y4 = line2.p2.y;
+
+    float denominator = ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+
+    // Check if the lines are parallel (denominator is close to 0)
+    if (denominator == 0) {
+        return false;
+    }
+    float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+    float u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
+
+    // Check if the intersection point is within the line segments
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        intersectionPoint->x = x1 + t * (x2 - x1);
+        intersectionPoint->y = y1 + t * (y2 - y1);
+        return true;
+    }
+
+    return false;
 }
 
 void drawBorderLine(cv::Mat image, Line line) {

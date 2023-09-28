@@ -15,6 +15,7 @@ void drawDetectedCircles(cv::Mat image, std::vector<cv::Vec3f> circles);
 unsigned int GetTickCount();
 
 bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint);
+bool getLineIntersection2(Line line1, Line line2, Coordinate* intersectionPoint);
 
 template<typename ... Args>
 std::string string_format( const std::string& format, Args ... args );

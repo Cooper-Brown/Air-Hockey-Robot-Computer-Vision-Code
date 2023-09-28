@@ -2,22 +2,33 @@
 #include "StmCommunicator.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "MatDrawFunctions.hpp"
 
 StmCommunicator::StmCommunicator(){
-    serialPort = SerialPort("/dev/ttyACM0", BaudRate::B_57600, NumDataBits::EIGHT, Parity::NONE, NumStopBits::ONE);
+    // B_57600
+    serialPort = SerialPort("/dev/ttyACM0", BaudRate::B_115200, NumDataBits::EIGHT, Parity::NONE, NumStopBits::ONE);
     serialPort.SetTimeout(100); // Block for up to 100ms to receive data
     connectionEstablished = false;
 }
 
 bool StmCommunicator::connect(){
-    try {
-        serialPort.Open();
+    int failCount = 0;
+    int maxFailCount = 10;
+    while (!connectionEstablished) {
+        std::cout << "Connecting, attempt: " << failCount << std::endl;
+        try {
+            serialPort.Open();
+            connectionEstablished = true;
+            break;
+        }
+        catch (mn::CppLinuxSerial::Exception) {
+            if (++failCount == maxFailCount){
+                return false;
+            }
+        }
+        sleep(2);
     }
-    catch (mn::CppLinuxSerial::Exception) {
-        return false;
-    }
-    connectionEstablished = true;
     return connectionEstablished;
 }
 
@@ -35,6 +46,7 @@ void StmCommunicator::setCoordinate(Coordinate p1){
     int x = (int16_t)p1.x;
     int y = (int16_t)p1.y;
     sprintf(buffer, "C:%d:%d:\n", x, y);
+    std::cout << buffer << std::endl;
     serialPort.Write(buffer);
     return;
 }

@@ -16,7 +16,7 @@ void Puck::update(cv::Vec3f positionalData) {
     float newX = positionalData[0];
     float newY = positionalData[1];
     radius = positionalData[2];
-    // std::cout << "Position " << newX << " " << newY << std::endl;
+    //std::cout << "Position " << newX << " " << newY << std::endl;
     if (noPrevPosition) {
         lastKnownCenter.x = newX;
         lastKnownCenter.y = newY;
