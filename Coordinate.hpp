@@ -7,6 +7,7 @@ class Coordinate {
         float y;
         Coordinate();
         Coordinate (float xIn, float yIn);
+        float getDistanceFrom(Coordinate other);
 };
 
 #endif

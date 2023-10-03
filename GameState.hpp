@@ -12,7 +12,8 @@ class GameState {
         Puck greenPuck;
         GameState(cv::Size rescaledSize);
         void registerLostPuck();
-        void updatePuckPosition(cv::Vec3f positionalData, cv::Mat imageToDrawOn);
+        void updatePuckPosition(cv::Vec3f positionalData);
+        void updateLogic(cv::Mat imageToDrawOn);
     private:
         void computeFirstOrderPuckReflection(cv::Mat imageToDrawOn);
         

@@ -67,5 +67,5 @@ void AirHockeyTable::draw(cv::Mat imageToDrawOn) {
     drawBorderLine(imageToDrawOn, robotBoundaryLeftLine);
     drawBorderLine(imageToDrawOn, robotBoundaryRightLine);
 
-    drawBorderLine(imageToDrawOn, testLine);
+    //drawBorderLine(imageToDrawOn, testLine);
 }

@@ -210,7 +210,7 @@ int main() {
         }
         else {
             detectedGreenCirclesGPU.download(detectedGreenCircles);
-            gameStateInstance.updatePuckPosition(detectedGreenCircles[0], undistortedImage);
+            gameStateInstance.updatePuckPosition(detectedGreenCircles[0]);
             gameStateInstance.greenPuck.draw(undistortedImage);
         }
 
@@ -219,11 +219,13 @@ int main() {
             //drawDetectedCircles(undistortedImage, detectedRedCircles);
         }
 
+        gameStateInstance.updateLogic(undistortedImage);
+
         // Draw the hockey table outline to the display.
         gameStateInstance.pixelSpaceTable.draw(undistortedImage);
 
         // DEBUGGING
-        circle(undistortedImage, cv::Point(10, 10), 5, cv::Scalar(255, 255, 0), 2);
+        //circle(undistortedImage, cv::Point(10, 10), 5, cv::Scalar(255, 255, 0), 2);
         
         // Update display
         imshow("TRAHT_Vision", undistortedImage);
