@@ -60,7 +60,7 @@ void AirHockeyTable::draw(cv::Mat imageToDrawOn) {
     drawBorderLine(imageToDrawOn, rightLine);
 
     drawGoalLine(imageToDrawOn, playerWinGoalLine);
-    drawGoalLine(imageToDrawOn, robotWinGoalLine);
+    //drawGoalLine(imageToDrawOn, robotWinGoalLine);
 
     drawBorderLine(imageToDrawOn, robotBoundaryTopLine);
     drawBorderLine(imageToDrawOn, robotBoundaryBottomLine);

@@ -24,8 +24,8 @@
 #include "v4l2_helper.h"
 #include <unistd.h>
 
-#include "Coordinate.hpp"
 #include "Line.hpp"
+#include "Coordinate.hpp"
 #include "Vector.hpp"
 #include "Corner.hpp"
 #include "Puck.hpp"

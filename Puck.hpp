@@ -9,8 +9,9 @@ class Puck {
     public:
         Coordinate center, lastKnownCenter;
         Vector velocity;
-        bool puckLost, noPrevPosition;
+        bool puckLost, noPrevPosition, stationary;
         unsigned int lastUpdateTime;
+        int puckLostCounter;
         float radius;
         Puck();
         void update(cv::Vec3f positionalData);

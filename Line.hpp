@@ -9,6 +9,7 @@ class Line {
         Coordinate p2;
         Line();
         Line(Coordinate p1In, Coordinate p2In);
+        bool contains(Coordinate coordinateIn);
 };
 
 #endif

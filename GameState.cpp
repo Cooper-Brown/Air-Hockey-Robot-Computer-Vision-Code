@@ -1,5 +1,6 @@
 
 #include <unistd.h>
+#include <string>
 
 #include "GameState.hpp"
 #include "MatDrawFunctions.hpp"
@@ -23,8 +24,40 @@ void GameState::updatePuckPosition(cv::Vec3f positionalData) {
     
 }
 
+bool resetTrackingAverage = true;
+
+#define STATE_STANDBY 0
+#define STATE_DEFEND 1
+int robotEntityState = STATE_STANDBY;
+
 void GameState::updateLogic(cv::Mat imageToDrawOn) {
     computeFirstOrderPuckReflection(imageToDrawOn);
+    if (resetTrackingAverage){
+        firstOrderReflection.averagePosition = firstOrderReflection.mostRecentReflectionPosition;
+        resetTrackingAverage = false;
+    }
+    else {
+        firstOrderReflection.averagePosition.x = (firstOrderReflection.averagePosition.x + firstOrderReflection.mostRecentReflectionPosition.x) / 2;
+        firstOrderReflection.averagePosition.y = (firstOrderReflection.averagePosition.y + firstOrderReflection.mostRecentReflectionPosition.y) / 2;
+        if (firstOrderReflection.averagePosition.getDistanceFrom(firstOrderReflection.mostRecentReflectionPosition) > 100){
+            resetTrackingAverage = true;
+        }
+    }
+
+    if ((!greenPuck.stationary) && (firstOrderReflection.reflectedSurface == "playerWinGoalLine")) {
+        robotEntityState = STATE_DEFEND;
+        std::cout << "Defending" << std::endl;        
+    }
+
+    if (robotEntityState == STATE_DEFEND){
+        circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 0, 255), 2);
+        if (greenPuck.puckLost){
+            robotEntityState = STATE_STANDBY;
+        }
+    }
+    else if (robotEntityState == STATE_STANDBY) {
+        circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 255, 0), 2);
+    }
 }
 
 void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
@@ -33,33 +66,31 @@ void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
         greenPuck.center, 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
     );
-
-    drawBorderLine(imageToDrawOn, puckTravelProjection);
     
     // We need to compute a list of all the reflections that could happen with the straight lines in the table.
-    Coordinate intersectionPoint;
     Vector reflectedVector;
-    bool drawPoint = true;
-    if (getLineIntersection2(pixelSpaceTable.playerWinGoalLine, puckTravelProjection, &intersectionPoint)) { // puckTravelProjection
-        
+    bool drawPoint = !greenPuck.stationary;
+    if (getLineIntersection2(pixelSpaceTable.playerWinGoalLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) { // puckTravelProjection
+        firstOrderReflection.reflectedSurface.assign("playerWinGoalLine");
     }
-    else if (getLineIntersection2(pixelSpaceTable.leftLine, puckTravelProjection, &intersectionPoint)) {
-        
+    else if (getLineIntersection2(pixelSpaceTable.leftLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) {
+        firstOrderReflection.reflectedSurface.assign("leftLine");
     }
-    else if (getLineIntersection2(pixelSpaceTable.rightLine, puckTravelProjection, &intersectionPoint)) {
-        
+    else if (getLineIntersection2(pixelSpaceTable.rightLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) {
+        firstOrderReflection.reflectedSurface.assign("rightLine");
     }
-    else if (getLineIntersection2(pixelSpaceTable.topLine, puckTravelProjection, &intersectionPoint)) {
-        
+    else if (getLineIntersection2(pixelSpaceTable.topLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) {
+        firstOrderReflection.reflectedSurface.assign("topLine");
     }
-    else if (getLineIntersection2(pixelSpaceTable.bottomLine, puckTravelProjection, &intersectionPoint)) {
-        
+    else if (getLineIntersection2(pixelSpaceTable.bottomLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) {
+        firstOrderReflection.reflectedSurface.assign("bottomLine");
     }
     else {
         drawPoint = false;
     }
     if (drawPoint){
-        circle(imageToDrawOn, cv::Point(intersectionPoint.x, intersectionPoint.y), 5, cv::Scalar(255, 0, 0), 2);
+        drawBorderLine(imageToDrawOn, puckTravelProjection);
+        circle(imageToDrawOn, cv::Point(firstOrderReflection.mostRecentReflectionPosition.x, firstOrderReflection.mostRecentReflectionPosition.y), 5, cv::Scalar(255, 0, 0), 2);
     }
 
 } 

@@ -6,9 +6,11 @@ Puck::Puck() {
     lastKnownCenter = Coordinate();
     velocity = Vector();
     radius = 0;
+    puckLostCounter = 0;
     puckLost = true;
     lastUpdateTime = 0;
     noPrevPosition = true;
+    stationary = true;
 }
 
 void Puck::update(cv::Vec3f positionalData) {
@@ -36,17 +38,19 @@ void Puck::update(cv::Vec3f positionalData) {
         velocity.yComponent = (center.y - lastKnownCenter.y) / (timeElapsed/1000.0);
     }
 
-    if ((velocity.xComponent != 0) || (velocity.yComponent != 0)) {
-        //std::cout << velocity.xComponent << " " << velocity.yComponent << std::endl;
-    }
+    stationary = ((velocity.xComponent < 3) && (velocity.yComponent < 3));
 
     lastKnownCenter = center;
     lastUpdateTime = ticksAtUpdateTime;
     puckLost = false;
+    puckLostCounter = 0;
     return;
 }
 
 void Puck::registerLostPuck() {
+    if (++puckLostCounter < 3){
+        return;
+    }
     puckLost = true;
 }
 
