@@ -69,3 +69,10 @@ void AirHockeyTable::draw(cv::Mat imageToDrawOn) {
 
     //drawBorderLine(imageToDrawOn, testLine);
 }
+
+bool AirHockeyTable::checkCoordinateInRobotArea(Coordinate coordinateIn){
+    return (
+        (coordinateIn.x > robotBoundaryLeftLine.p1.x) && (coordinateIn.x < robotBoundaryRightLine.p1.x) &&
+        (coordinateIn.y > robotBoundaryBottomLine.p1.y) && (coordinateIn.y < robotBoundaryTopLine.p1.y)
+    );
+}

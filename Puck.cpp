@@ -33,12 +33,12 @@ void Puck::update(cv::Vec3f positionalData) {
         velocity.xComponent = 0;
         velocity.yComponent = 0;
     }
-    else{
+    else {
         velocity.xComponent = (center.x - lastKnownCenter.x) / (timeElapsed/1000.0);
         velocity.yComponent = (center.y - lastKnownCenter.y) / (timeElapsed/1000.0);
     }
 
-    stationary = ((velocity.xComponent < 3) && (velocity.yComponent < 3));
+    stationary = ((velocity.xComponent < 0.5) && (velocity.yComponent < 0.5)); // was 3
 
     lastKnownCenter = center;
     lastUpdateTime = ticksAtUpdateTime;

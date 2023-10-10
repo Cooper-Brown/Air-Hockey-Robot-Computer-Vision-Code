@@ -6,37 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/cooper/FYP_Logic_Cpp/AirHockeyTable.hpp
-opencv2/opencv.hpp
--
-Line.hpp
-/home/cooper/FYP_Logic_Cpp/Line.hpp
-Corner.hpp
-/home/cooper/FYP_Logic_Cpp/Corner.hpp
-
 /home/cooper/FYP_Logic_Cpp/Coordinate.hpp
-
-/home/cooper/FYP_Logic_Cpp/Corner.hpp
-Coordinate.hpp
-/home/cooper/FYP_Logic_Cpp/Coordinate.hpp
-
-/home/cooper/FYP_Logic_Cpp/GameState.cpp
-unistd.h
--
-string
--
-GameState.hpp
-/home/cooper/FYP_Logic_Cpp/GameState.hpp
-MatDrawFunctions.hpp
-/home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
-
-/home/cooper/FYP_Logic_Cpp/GameState.hpp
-opencv2/opencv.hpp
--
-AirHockeyTable.hpp
-/home/cooper/FYP_Logic_Cpp/AirHockeyTable.hpp
-Puck.hpp
-/home/cooper/FYP_Logic_Cpp/Puck.hpp
 
 /home/cooper/FYP_Logic_Cpp/Line.hpp
 Coordinate.hpp
@@ -53,6 +23,12 @@ string
 -
 stdexcept
 -
+
+/home/cooper/FYP_Logic_Cpp/Puck.cpp
+Puck.hpp
+/home/cooper/FYP_Logic_Cpp/Puck.hpp
+MatDrawFunctions.hpp
+/home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
 
 /home/cooper/FYP_Logic_Cpp/Puck.hpp
 Coordinate.hpp

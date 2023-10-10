@@ -18,6 +18,7 @@ class AirHockeyTable {
         AirHockeyTable();
         AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn, float yOffsetIn);
         void draw(cv::Mat imageToDrawOn);
+        bool checkCoordinateInRobotArea(Coordinate coordinateIn);
         
 };
 
