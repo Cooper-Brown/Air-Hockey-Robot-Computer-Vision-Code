@@ -60,6 +60,7 @@
 //#define CONNECT_TO_BOARD
 
 int main() {
+    std::cout.flush();
     StmCommunicator stmComms = StmCommunicator();
     bool connected = false;
     #ifdef CONNECT_TO_BOARD

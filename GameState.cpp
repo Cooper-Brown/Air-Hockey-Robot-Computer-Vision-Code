@@ -13,6 +13,8 @@ GameState::GameState(cv::Size rescaledSize) {
     float AHT_yOffset = (rescaledSize.height - AHT_y)/2 + 5;
     pixelSpaceTable = AirHockeyTable(AHT_x, AHT_y, AHT_r, AHT_xOffset, AHT_yOffset);
     greenPuck = Puck();
+    gameState = STATE_STANDBY;
+    resetTrackingAverage = true;
 }
 
 void GameState::registerLostPuck() {
@@ -24,13 +26,21 @@ void GameState::updatePuckPosition(cv::Vec3f positionalData) {
     
 }
 
-bool resetTrackingAverage = true;
-
-#define STATE_STANDBY 0
-#define STATE_DEFEND 1
-int robotEntityState = STATE_STANDBY;
-
 void GameState::updateLogic(cv::Mat imageToDrawOn) {
+    switch (gameState) {
+        case STATE_STANDBY:
+            standbyProcedure(imageToDrawOn);
+            break;
+        case STATE_ATTACK:
+            attackProcedure(imageToDrawOn);
+            break;
+        case STATE_DEFEND:
+            defendProcedure(imageToDrawOn);
+            break;
+        default:
+            break;
+    }
+    /*
     computeFirstOrderPuckReflection(imageToDrawOn);
     if (resetTrackingAverage){
         firstOrderReflection.averagePosition = firstOrderReflection.mostRecentReflectionPosition;
@@ -43,31 +53,61 @@ void GameState::updateLogic(cv::Mat imageToDrawOn) {
             resetTrackingAverage = true;
         }
     }
-
-    if ((!greenPuck.stationary) && (firstOrderReflection.reflectedSurface == "playerWinGoalLine")) {
-        robotEntityState = STATE_DEFEND;
-        std::cout << "Defending" << std::endl;        
+    // (!greenPuck.stationary) && 
+    if ((firstOrderReflection.reflectedSurface == "playerWinGoalLine")) {
+        gameState = STATE_DEFEND;
+        std::cout << "Defending " << defendCount++ << std::endl;        
     }
 
-    if (robotEntityState == STATE_DEFEND){
+    if (gameState == STATE_DEFEND){
         circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 0, 255), 2);
         if (greenPuck.puckLost){
-            robotEntityState = STATE_STANDBY;
+            gameState = STATE_STANDBY;
         }
     }
-    else if (robotEntityState == STATE_STANDBY) {
+    else if (gameState == STATE_STANDBY) {
         circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 255, 0), 2);
+    }
+    */
+}
+
+void GameState::standbyProcedure(cv::Mat imageToDrawOn){
+    // If the puck is lost, stay in standby mode
+    if (greenPuck.puckLost){
+        return;
+    }
+
+    // Stay in standby until the puck is stationary 
+    if (!greenPuck.stationary){
+        return;
+    }
+
+    // Determine if the puck is in the area of influence.
+    if (pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
+        std::cout << "In Area of Influence" << std::endl;
     }
 }
 
+// TEMPORARY DEBUGGING VARIABLES
+int defendCount = 0;
+void GameState::defendProcedure(cv::Mat imageToDrawOn){
+
+}
+
+void GameState::attackProcedure(cv::Mat imageToDrawOn){
+
+}
+
+// Will update the firstOrderPuckReflection class variable according to the most recent data.
 void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
+    // Project the pucks instantaneous velocity
     Vector puckVelocityUnitVector = greenPuck.velocity;//.getUnitVector(); UNIT VECTORS DEVIATE SIGNIFICANTLY FROM THE REGULAR VELOCITY FOR SOME REASON
     Line puckTravelProjection(
         greenPuck.center, 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
     );
     
-    // We need to compute a list of all the reflections that could happen with the straight lines in the table.
+    // Check the intersections for all 
     Vector reflectedVector;
     bool drawPoint = !greenPuck.stationary;
     if (getLineIntersection2(pixelSpaceTable.playerWinGoalLine, puckTravelProjection, &(firstOrderReflection.mostRecentReflectionPosition))) { // puckTravelProjection
