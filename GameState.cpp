@@ -5,7 +5,8 @@
 #include "GameState.hpp"
 #include "MatDrawFunctions.hpp"
 
-GameState::GameState(cv::Size rescaledSize) {
+GameState::GameState(cv::Size rescaledSize, StmCommunicator* stmCommsIn) {
+    stmComms = stmCommsIn;
     float AHT_x = rescaledSize.width-40;
     float AHT_y = rescaledSize.height-80;
     float AHT_r = 40;
@@ -79,12 +80,14 @@ void GameState::standbyProcedure(cv::Mat imageToDrawOn){
 
     // Stay in standby until the puck is stationary 
     if (!greenPuck.stationary){
+        std::cout << "Puck Not Stationary" << std::endl;
         return;
     }
 
     // Determine if the puck is in the area of influence.
     if (pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
-        std::cout << "In Area of Influence" << std::endl;
+        std::cout << "In Area of Influence";
+        gameState = STATE_ATTACK;
     }
 }
 
@@ -94,8 +97,33 @@ void GameState::defendProcedure(cv::Mat imageToDrawOn){
 
 }
 
+bool attackCommandSent = false;
+unsigned int moveTwoWaitTime = 5000;
+unsigned int moveTwoTimerStartTime = -1;
 void GameState::attackProcedure(cv::Mat imageToDrawOn){
+    // Ensure conditions for the attack are still met
+    if (!pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
+        std::cout << "Leaving Defend State";
+        gameState = STATE_STANDBY;
+        return;
+    }
+    
+    // Come up with a plan
+    Line targetTrajectoryDirect = Line(greenPuck.center, pixelSpaceTable.robotWinGoalLine.computeCenterCoordinate());
+    drawBorderLine(imageToDrawOn, targetTrajectoryDirect);
 
+    if (!attackCommandSent){
+        if (moveTwoTimerStartTime < 0){
+            moveTwoTimerStartTime = GetTickCount();
+            stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, 5000));
+            
+        }
+        if (GetTickCount() - moveTwoTimerStartTime > moveTwoWaitTime)
+        {
+            stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MIN-5000));
+            attackCommandSent = true;
+        }
+    }
 }
 
 // Will update the firstOrderPuckReflection class variable according to the most recent data.

@@ -124,6 +124,7 @@ CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../GameState.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../Line.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../MatDrawFunctions.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../Puck.hpp
+CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../StmCommunicator.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: ../Vector.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: /usr/local/include/opencv4/opencv2/calib3d.hpp
 CMakeFiles/fyp-logic-exe.dir/GameState.cpp.o: /usr/local/include/opencv4/opencv2/core.hpp

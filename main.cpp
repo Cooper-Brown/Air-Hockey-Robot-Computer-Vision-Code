@@ -52,11 +52,6 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
-#define TABLE_X_BOUNDARY_MIN 2000
-#define TABLE_X_BOUNDARY_MAX 15100
-#define TABLE_Y_BOUNDARY_MIN 2000
-#define TABLE_Y_BOUNDARY_MAX 17300
-
 //#define CONNECT_TO_BOARD
 
 int main() {
@@ -120,7 +115,7 @@ int main() {
     // The image will be rescaled to this resolution
     cv::Size rescaledSize(CAM_RESCALED_WIDTH, CAM_RESCALED_HEIGHT);
 
-    GameState gameStateInstance(rescaledSize);
+    GameState gameStateInstance(rescaledSize, &stmComms);
 
     // Instantiate all of the temporary variables we need.
     cv::Mat cpuFrame = cv::Mat(CAM_INPUT_HEIGHT, CAM_INPUT_WIDTH, CV_8UC2);

@@ -10,6 +10,7 @@ class Line {
         Line();
         Line(Coordinate p1In, Coordinate p2In);
         bool contains(Coordinate coordinateIn);
+        Coordinate computeCenterCoordinate();
 };
 
 #endif

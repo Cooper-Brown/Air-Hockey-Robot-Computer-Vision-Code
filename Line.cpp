@@ -28,4 +28,12 @@ bool Line::contains(Coordinate coordinateIn) {
     float expectedY = gradient * coordinateIn.x + intercept;
     return (fabs(expectedY - coordinateIn.y) < zeroEquivalenceTolerance);
 }
+
+Coordinate Line::computeCenterCoordinate() {
+    Coordinate center = Coordinate(
+        (p1.x + p2.x)/2.0,
+        (p1.y + p2.y)/2.0
+    );
+    return center;
+}
  

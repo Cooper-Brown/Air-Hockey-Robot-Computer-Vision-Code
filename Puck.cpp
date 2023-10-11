@@ -27,6 +27,9 @@ void Puck::update(cv::Vec3f positionalData) {
     }
     center.x = newX;
     center.y = newY;
+
+    float puckMovingThreshold = 1;
+    bool lastVelocityUnderThreshold = ((velocity.xComponent < puckMovingThreshold) && (velocity.yComponent < puckMovingThreshold));
     
     unsigned int timeElapsed = ticksAtUpdateTime - lastUpdateTime;
     if (timeElapsed == 0){
@@ -38,7 +41,9 @@ void Puck::update(cv::Vec3f positionalData) {
         velocity.yComponent = (center.y - lastKnownCenter.y) / (timeElapsed/1000.0);
     }
 
-    stationary = ((velocity.xComponent < 0.5) && (velocity.yComponent < 0.5)); // was 3
+    bool newVelocityUnderThreshold = ((velocity.xComponent < puckMovingThreshold) && (velocity.yComponent < puckMovingThreshold)); // was 3
+
+    stationary = lastVelocityUnderThreshold && newVelocityUnderThreshold;
 
     lastKnownCenter = center;
     lastUpdateTime = ticksAtUpdateTime;
