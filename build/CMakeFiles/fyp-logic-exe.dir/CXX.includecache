@@ -20,16 +20,6 @@ Corner.hpp
 Coordinate.hpp
 /home/cooper/FYP_Logic_Cpp/Coordinate.hpp
 
-/home/cooper/FYP_Logic_Cpp/GameState.cpp
-unistd.h
--
-string
--
-GameState.hpp
-/home/cooper/FYP_Logic_Cpp/GameState.hpp
-MatDrawFunctions.hpp
-/home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
-
 /home/cooper/FYP_Logic_Cpp/GameState.hpp
 opencv2/opencv.hpp
 -

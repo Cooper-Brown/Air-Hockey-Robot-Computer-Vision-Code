@@ -86,8 +86,8 @@ void GameState::standbyProcedure(cv::Mat imageToDrawOn){
 
     // Determine if the puck is in the area of influence.
     if (pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
-        std::cout << "In Area of Influence";
-        gameState = STATE_ATTACK;
+        std::cout << "In Area of Influence" << std::endl;
+        //gameState = STATE_ATTACK;
     }
 }
 
@@ -99,11 +99,11 @@ void GameState::defendProcedure(cv::Mat imageToDrawOn){
 
 bool attackCommandSent = false;
 unsigned int moveTwoWaitTime = 5000;
-unsigned int moveTwoTimerStartTime = -1;
+unsigned int moveTwoTimerStartTime = 0;
 void GameState::attackProcedure(cv::Mat imageToDrawOn){
     // Ensure conditions for the attack are still met
     if (!pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
-        std::cout << "Leaving Defend State";
+        std::cout << "Leaving Defend State" << std::endl;
         gameState = STATE_STANDBY;
         return;
     }
@@ -113,14 +113,16 @@ void GameState::attackProcedure(cv::Mat imageToDrawOn){
     drawBorderLine(imageToDrawOn, targetTrajectoryDirect);
 
     if (!attackCommandSent){
-        if (moveTwoTimerStartTime < 0){
+        if (moveTwoTimerStartTime == 0){
             moveTwoTimerStartTime = GetTickCount();
             stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, 5000));
+            std::cout << "Position 1 set" << std::endl;
             
         }
         if (GetTickCount() - moveTwoTimerStartTime > moveTwoWaitTime)
         {
-            stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MIN-5000));
+            stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MAX-5000));
+            std::cout << "Position 2 set" << std::endl;
             attackCommandSent = true;
         }
     }

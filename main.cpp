@@ -52,7 +52,7 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
-//#define CONNECT_TO_BOARD
+#define CONNECT_TO_BOARD
 
 int main() {
     std::cout.flush();
@@ -148,19 +148,21 @@ int main() {
 
     std::cout << "Game Started" << std::endl;
 
-    sleep(3);
-
     Coordinate dummyTargetCoordinate(7500, 7500);
     if (connected) {
         stmComms.setCoordinate(dummyTargetCoordinate);
     }
+    sleep(1);
 
-    sleep(3);
+    while(!(cv::waitKey(0) == 32)) sleep(0.01);
     
-    dummyTargetCoordinate = Coordinate(3000, 3000);
+    dummyTargetCoordinate = Coordinate(7500, 12000);
     if (connected) {
         stmComms.setCoordinate(dummyTargetCoordinate);
     }
+    sleep(1);
+
+    while(!(cv::waitKey(0) == 32)) sleep(0.01);
 
     while (1) {
         // Used for getting FPS counter
