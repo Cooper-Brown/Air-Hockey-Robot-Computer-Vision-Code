@@ -234,6 +234,7 @@ CMakeFiles/fyp-logic-exe.dir/Line.cpp.o
  /home/cooper/FYP_Logic_Cpp/Line.hpp
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o
  /home/cooper/FYP_Logic_Cpp/Coordinate.hpp
+ /home/cooper/FYP_Logic_Cpp/Corner.hpp
  /home/cooper/FYP_Logic_Cpp/Line.hpp
  /home/cooper/FYP_Logic_Cpp/MatDrawFunctions.cpp
  /home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
@@ -340,6 +341,7 @@ CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o
  /home/cooper/FYP_Logic_Cpp/Coordinate.hpp
+ /home/cooper/FYP_Logic_Cpp/Corner.hpp
  /home/cooper/FYP_Logic_Cpp/Line.hpp
  /home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
  /home/cooper/FYP_Logic_Cpp/Puck.cpp
@@ -448,6 +450,7 @@ CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o
  /usr/local/include/opencv4/opencv2/videoio.hpp
 CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o
  /home/cooper/FYP_Logic_Cpp/Coordinate.hpp
+ /home/cooper/FYP_Logic_Cpp/Corner.hpp
  /home/cooper/FYP_Logic_Cpp/Line.hpp
  /home/cooper/FYP_Logic_Cpp/MatDrawFunctions.hpp
  /home/cooper/FYP_Logic_Cpp/StmCommunicator.cpp

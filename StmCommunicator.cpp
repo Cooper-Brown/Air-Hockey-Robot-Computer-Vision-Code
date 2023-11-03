@@ -49,7 +49,7 @@ void StmCommunicator::setCoordinate(Coordinate p1){
     int x = (int32_t)p1.x;
     int y = (int32_t)p1.y;
     sprintf(buffer, "C:%d:%d:\n", x, y);
-    std::cout << buffer << std::endl;
+    //std::cout << buffer << std::endl;
     serialPort.Write(buffer);
     return;
 }

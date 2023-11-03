@@ -7,8 +7,10 @@ class Corner {
     public:
         Coordinate center;
         float radius;
+        float startAngle;
+        float endAngle;
         Corner();
-        Corner(Coordinate centerIn, float radiusIn);
+        Corner(Coordinate centerIn, float radiusIn, float startAngleIn, float endAngleIn);
 };
 
 #endif

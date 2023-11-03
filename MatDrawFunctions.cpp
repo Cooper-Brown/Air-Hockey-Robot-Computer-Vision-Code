@@ -1,6 +1,7 @@
 
 #include "MatDrawFunctions.hpp"
 #include <sys/time.h>
+#include <cmath>
 
 #define COLOR_PURPLE cv::Scalar(255,0,255)
 #define COLOR_BLUE cv::Scalar(255,0,0)
@@ -9,6 +10,7 @@
 // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
 // intersect the intersection point may be stored in the floats i_x and i_y.
 // FUNCTION TAKEN FROM https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+/*
 bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint)
 {
     float p0_x = line1.p1.x;    float p0_y = line1.p1.y;
@@ -37,6 +39,7 @@ bool getLineIntersection(Line line1, Line line2, Coordinate* intersectionPoint)
 
     return false; // No collision
 }
+*/
 
 bool getLineIntersection2(Line line1, Line line2, Coordinate* intersectionPoint){
     float x1 = line1.p1.x;         float y1 = line1.p1.y;
@@ -63,6 +66,99 @@ bool getLineIntersection2(Line line1, Line line2, Coordinate* intersectionPoint)
     return false;
 }
 
+bool pointInQuadrant(Coordinate coordinate, Corner corner){
+    Coordinate extremity1 = Coordinate(
+        (corner.center.x + corner.radius * cos(corner.startAngle)),
+        (corner.center.y + corner.radius * -sin(corner.startAngle))
+    );
+    Coordinate extremity2 = Coordinate(
+        (corner.center.x + corner.radius * cos(corner.endAngle)),
+        (corner.center.y + corner.radius * -sin(corner.endAngle))
+    );
+
+    float largeX = extremity2.x;
+    float smallX = extremity1.x;
+    float largeY = extremity2.y;
+    float smallY = extremity1.y;
+    if (extremity1.x > extremity2.x){
+        largeX = extremity1.x;
+        smallX = extremity2.x;
+    }
+    if (extremity1.y > extremity2.y){
+        largeY = extremity1.y;
+        smallY = extremity2.y;
+    }
+
+    if ((coordinate.x >= smallX) && (coordinate.x <= largeX) &&
+        (coordinate.y >= smallY) && (coordinate.y <= largeY) )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool getCornerIntersection(Line line1, Corner corner1, Coordinate* intersectionPoint){
+    float x1 = line1.p1.x;         float y1 = line1.p1.y;
+    float x2 = line1.p2.x;         float y2 = line1.p2.y;
+    float px = x1;                 float py = y1;
+    float rx = x2 - x1;            float ry = y2 - y1;
+
+    float circleEquationXOffset = corner1.center.x;
+    float circleEquationYOffset = corner1.center.y;
+
+    float a = pow(rx,2) + pow(ry,2);
+    float b = 2 * rx * (px - circleEquationXOffset) + 2 * ry * (py - circleEquationYOffset);
+    float c = (px - circleEquationXOffset) + (py - circleEquationYOffset) - pow(corner1.radius,2);
+    
+    float quadraticRoot = pow(b,2) - 4*a*c;
+    if ((a == 0) || (quadraticRoot < 0)){
+        return false;
+    }
+    
+    float t1 = (-b + sqrt(quadraticRoot))/(2*a);
+    float t2 = (-b - sqrt(quadraticRoot))/(2*a);
+
+    std::cout << "t1=" << t1 << " t2=" << t2 << std::endl;
+
+    bool intersectionPoint1Exists = (t1 >= 0) && (t1 <= 1);
+    bool intersectionPoint2Exists = (t2 >= 0) && (t2 <= 1);
+    if (!intersectionPoint1Exists && !intersectionPoint2Exists) {
+        return false;
+    }
+
+    Coordinate intersectionPoint1;
+    bool intersectionPoint1InQuadrant;
+    if (intersectionPoint1Exists){
+        intersectionPoint1 = Coordinate((px + t1 * rx), (py + t1 * ry));
+        std::cout << "Intersection 1 " << intersectionPoint1.x << " " << intersectionPoint1.y << std::endl;
+        intersectionPoint1InQuadrant = pointInQuadrant(intersectionPoint1, corner1);
+        std::cout << "Point in quadrant:" << intersectionPoint1InQuadrant << std::endl;
+    }
+
+    Coordinate intersectionPoint2;
+    bool intersectionPoint2InQuadrant;
+    if (intersectionPoint2Exists){
+        intersectionPoint2 = Coordinate((px + t2 * rx), (py + t2 * ry));
+        std::cout << "Intersection 2 " << intersectionPoint2.x << " " << intersectionPoint2.y << std::endl;
+        intersectionPoint2InQuadrant = pointInQuadrant(intersectionPoint2, corner1);
+    }
+
+    if (intersectionPoint1InQuadrant && intersectionPoint2InQuadrant){
+        std::cout << "Corner-trajectory intersection at two points not handled. Prediction shearing will occur..." << std::endl;
+    }
+    else if (intersectionPoint1InQuadrant) {
+        intersectionPoint->x = intersectionPoint1.x;
+        intersectionPoint->y = intersectionPoint1.y;
+        return true;
+    }
+    else if (intersectionPoint2InQuadrant){
+        intersectionPoint->x = intersectionPoint2.x;
+        intersectionPoint->y = intersectionPoint2.y;
+        return true;
+    }
+    return false;
+}
+
 void drawBorderLine(cv::Mat image, Line line) {
     cv::Point p1(line.p1.x, line.p1.y);
     cv::Point p2(line.p2.x, line.p2.y);
@@ -83,6 +179,20 @@ void drawVelocityLine(cv::Mat image, Line line) {
     int thickness = 2;
     cv::line(image, p1, p2, COLOR_BLUE, thickness, cv::LINE_8);
     //std::cout << line.p1.x << ":" << line.p1.y << " " << line.p2.x << ":" << line.p1.y << std::endl;
+}
+
+void drawCorner(cv::Mat image, Corner corner){
+    cv::ellipse(
+        image, 
+        cv::Point(corner.center.x,corner.center.y), 
+        cv::Size(corner.radius, corner.radius), 
+        0, 
+        corner.startAngle,
+        corner.endAngle,
+        COLOR_PURPLE,
+        2,
+        cv::LINE_8
+    );
 }
 
 void drawDetectedCircles(cv::Mat image, std::vector<cv::Vec3f> circles){

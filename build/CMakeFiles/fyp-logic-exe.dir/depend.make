@@ -233,6 +233,7 @@ CMakeFiles/fyp-logic-exe.dir/Line.cpp.o: ../Line.cpp
 CMakeFiles/fyp-logic-exe.dir/Line.cpp.o: ../Line.hpp
 
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: ../Coordinate.hpp
+CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: ../Corner.hpp
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: ../Line.hpp
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: ../MatDrawFunctions.cpp
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: ../MatDrawFunctions.hpp
@@ -339,6 +340,7 @@ CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: /usr/local/include/opencv4/
 CMakeFiles/fyp-logic-exe.dir/MatDrawFunctions.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: ../Coordinate.hpp
+CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: ../Corner.hpp
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: ../Line.hpp
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: ../MatDrawFunctions.hpp
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: ../Puck.cpp
@@ -447,6 +449,7 @@ CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: /usr/local/include/opencv4/opencv2/vide
 CMakeFiles/fyp-logic-exe.dir/Puck.cpp.o: /usr/local/include/opencv4/opencv2/videoio.hpp
 
 CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o: ../Coordinate.hpp
+CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o: ../Corner.hpp
 CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o: ../Line.hpp
 CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o: ../MatDrawFunctions.hpp
 CMakeFiles/fyp-logic-exe.dir/StmCommunicator.cpp.o: ../StmCommunicator.cpp

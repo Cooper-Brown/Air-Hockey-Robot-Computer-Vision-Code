@@ -52,7 +52,8 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
-#define CONNECT_TO_BOARD
+//#define CONNECT_TO_BOARD
+//#define OUTPUT_VIDEO
 
 int main() {
     std::cout.flush();
@@ -77,6 +78,16 @@ int main() {
 
     // Set up a window to display a live feed
     cv::namedWindow("TRAHT_Vision");
+
+    #ifdef OUTPUT_VIDEO
+    cv::VideoWriter oVideoWriter(
+        "./MyVideo.avi", 
+        cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 
+        40, 
+        cv::Size(640,360), 
+        true
+    );
+    #endif
 
     // INITIALISE THE V4L2 HELPER LIBRARY
     if (helper_init_cam(CAM_INPUT_DEVICE, CAM_INPUT_WIDTH, CAM_INPUT_HEIGHT, V4L2_PIX_FMT_UYVY, IO_METHOD_USERPTR) < 0) {
@@ -122,8 +133,10 @@ int main() {
     cv::Mat cpuFrameBGR = cv::Mat(CAM_INPUT_HEIGHT, CAM_INPUT_WIDTH, CV_8UC3);
     cv::Mat cpuFrameResized = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
     cv::Mat undistortedImage = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+    cv::Mat additionalDownloadSpace = cv::Mat(rescaledSize.width, rescaledSize.height, CV_8UC3);
 
     cv::cuda::GpuMat gpuFrame = cv::cuda::GpuMat(rescaledSize.width, rescaledSize.height, CV_8UC3);
+
     cv::cuda::GpuMat gpuFrame_channels[3];
     cv::cuda::GpuMat detectedGreenCirclesGPU;
     cv::cuda::GpuMat detectedRedCirclesGPU;
@@ -141,28 +154,13 @@ int main() {
 
     std::cout << "Finished configuration, hit space to start game..." << std::endl;
 
-    if (connected){
-        while(!(cv::waitKey(0) == 32)) sleep(0.01); // wait forever on space key (From ascii table)
+    while(!(cv::waitKey(0) == 32)) sleep(0.01); // wait forever on space key (From ascii table)
+
+    if (connected){       
         stmComms.enableBoard();
     }
 
     std::cout << "Game Started" << std::endl;
-
-    Coordinate dummyTargetCoordinate(7500, 7500);
-    if (connected) {
-        stmComms.setCoordinate(dummyTargetCoordinate);
-    }
-    sleep(1);
-
-    while(!(cv::waitKey(0) == 32)) sleep(0.01);
-    
-    dummyTargetCoordinate = Coordinate(7500, 12000);
-    if (connected) {
-        stmComms.setCoordinate(dummyTargetCoordinate);
-    }
-    sleep(1);
-
-    while(!(cv::waitKey(0) == 32)) sleep(0.01);
 
     while (1) {
         // Used for getting FPS counter
@@ -194,7 +192,7 @@ int main() {
             gaussianFilter->apply(gpuFrame, gpuFrame);
             //cv::inRange(undistortedImage, lowerBound, upperBound, gpuMask);
             //gpuFrame.setTo(cv::Scalar(0, 0, 0), cv::cuda::GpuMat(gpuMask));
-            //gpuFrame.download(undistortedImage);
+            //gpuFrame.download(additionalDownloadSpace);
             cv::cuda::split(gpuFrame, gpuFrame_channels);
             houghCircleDetectorGreen->detect(gpuFrame_channels[1], detectedGreenCirclesGPU);
             houghCircleDetectorRed->detect(gpuFrame_channels[2], detectedRedCirclesGPU);
@@ -214,7 +212,7 @@ int main() {
 
         if (!detectedRedCirclesGPU.empty()) {
             detectedRedCirclesGPU.download(detectedRedCircles);
-            //drawDetectedCircles(undistortedImage, detectedRedCircles);
+            drawDetectedCircles(undistortedImage, detectedRedCircles);
         }
 
         gameStateInstance.updateLogic(undistortedImage);
@@ -227,6 +225,11 @@ int main() {
         
         // Update display
         imshow("TRAHT_Vision", undistortedImage);
+
+        // write image to file
+        #ifdef OUTPUT_VIDEO
+        oVideoWriter.write(undistortedImage);
+        #endif
 
         helper_release_cam_frame();
 
@@ -242,6 +245,10 @@ int main() {
 	{
 		return EXIT_FAILURE;
 	}
+
+    #ifdef OUTPUT_VIDEO
+    oVideoWriter.release();
+    #endif
 
     return 1;
 }
