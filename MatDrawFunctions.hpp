@@ -8,6 +8,8 @@
 #include <string>
 #include <stdexcept>
 
+#define PUCK_RADIUS_PIXELS 12
+
 void drawBorderLine(cv::Mat image, Line line);
 void drawCorner(cv::Mat image, Corner corner);
 void drawGoalLine(cv::Mat image, Line line);

@@ -52,8 +52,8 @@
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
 
-//#define CONNECT_TO_BOARD
-//#define OUTPUT_VIDEO
+#define CONNECT_TO_BOARD
+#define OUTPUT_VIDEO
 
 int main() {
     std::cout.flush();

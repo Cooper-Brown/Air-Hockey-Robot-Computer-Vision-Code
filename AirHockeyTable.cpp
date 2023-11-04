@@ -54,7 +54,7 @@ AirHockeyTable::AirHockeyTable(float xIn, float yIn, float rIn, float xOffsetIn,
         Coordinate(rightLine.p2.x - r - 270, rightLine.p2.y + 10)
     );
 
-    testLine = Line(Coordinate(640/2.0, 360/2.0), Coordinate(0, 50));
+    testLine = Line(Coordinate(640/2.0, 360/2.0), Coordinate(640, 50));
 
 }
 
@@ -78,7 +78,7 @@ void AirHockeyTable::draw(cv::Mat imageToDrawOn) {
     drawBorderLine(imageToDrawOn, robotBoundaryLeftLine);
     drawBorderLine(imageToDrawOn, robotBoundaryRightLine);
 
-    drawBorderLine(imageToDrawOn, testLine);
+    //drawBorderLine(imageToDrawOn, testLine);
 }
 
 bool AirHockeyTable::checkCoordinateInRobotArea(Coordinate coordinateIn){

@@ -10,11 +10,17 @@ class StmCommunicator {
     public:
         bool connectionEstablished;
         SerialPort serialPort;
+
+        char pendingTransmission[20];
+        bool pendingTransmissionSent;
+        unsigned int lastTransmissionTime;
+
         StmCommunicator();
         bool connect();
         void disconnect();
         bool enableBoard();
         void setCoordinate(Coordinate p1);
+        bool processPendingTransmission();
 };
 
 #endif

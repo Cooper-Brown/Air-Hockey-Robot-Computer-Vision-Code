@@ -68,12 +68,12 @@ bool getLineIntersection2(Line line1, Line line2, Coordinate* intersectionPoint)
 
 bool pointInQuadrant(Coordinate coordinate, Corner corner){
     Coordinate extremity1 = Coordinate(
-        (corner.center.x + corner.radius * cos(corner.startAngle)),
-        (corner.center.y + corner.radius * -sin(corner.startAngle))
+        (corner.center.x + corner.radius * cos((M_PI/180.0)*corner.startAngle)),
+        (corner.center.y + corner.radius * sin((M_PI/180.0)*corner.startAngle))
     );
     Coordinate extremity2 = Coordinate(
-        (corner.center.x + corner.radius * cos(corner.endAngle)),
-        (corner.center.y + corner.radius * -sin(corner.endAngle))
+        (corner.center.x + corner.radius * cos((M_PI/180.0)*corner.endAngle)),
+        (corner.center.y + corner.radius * sin((M_PI/180.0)*corner.endAngle))
     );
 
     float largeX = extremity2.x;
@@ -88,6 +88,9 @@ bool pointInQuadrant(Coordinate coordinate, Corner corner){
         largeY = extremity1.y;
         smallY = extremity2.y;
     }
+
+    //std::cout << smallX << " " << coordinate.x << " " << largeX << std::endl;
+    //std::cout << smallY << " " << coordinate.y << " " << largeY << std::endl;
 
     if ((coordinate.x >= smallX) && (coordinate.x <= largeX) &&
         (coordinate.y >= smallY) && (coordinate.y <= largeY) )
@@ -106,9 +109,12 @@ bool getCornerIntersection(Line line1, Corner corner1, Coordinate* intersectionP
     float circleEquationXOffset = corner1.center.x;
     float circleEquationYOffset = corner1.center.y;
 
+    //std::cout << "Circle Center x:" << circleEquationXOffset << " y:" << circleEquationYOffset << " R:" << corner1.radius << std::endl;
+    //std::cout << "P:(" << px << " , " << py << ") R:(" << rx << " , " << ry << ")" << std::endl;
+
     float a = pow(rx,2) + pow(ry,2);
     float b = 2 * rx * (px - circleEquationXOffset) + 2 * ry * (py - circleEquationYOffset);
-    float c = (px - circleEquationXOffset) + (py - circleEquationYOffset) - pow(corner1.radius,2);
+    float c = pow(px - circleEquationXOffset,2) + pow(py - circleEquationYOffset,2) - pow(corner1.radius-PUCK_RADIUS_PIXELS,2);
     
     float quadraticRoot = pow(b,2) - 4*a*c;
     if ((a == 0) || (quadraticRoot < 0)){
@@ -118,29 +124,27 @@ bool getCornerIntersection(Line line1, Corner corner1, Coordinate* intersectionP
     float t1 = (-b + sqrt(quadraticRoot))/(2*a);
     float t2 = (-b - sqrt(quadraticRoot))/(2*a);
 
-    std::cout << "t1=" << t1 << " t2=" << t2 << std::endl;
+    //std::cout << "t1=" << t1 << " t2=" << t2 << std::endl;
 
     bool intersectionPoint1Exists = (t1 >= 0) && (t1 <= 1);
     bool intersectionPoint2Exists = (t2 >= 0) && (t2 <= 1);
-    if (!intersectionPoint1Exists && !intersectionPoint2Exists) {
-        return false;
-    }
 
     Coordinate intersectionPoint1;
-    bool intersectionPoint1InQuadrant;
+    bool intersectionPoint1InQuadrant = false;
     if (intersectionPoint1Exists){
         intersectionPoint1 = Coordinate((px + t1 * rx), (py + t1 * ry));
-        std::cout << "Intersection 1 " << intersectionPoint1.x << " " << intersectionPoint1.y << std::endl;
+        //std::cout << "Intersection 1 " << intersectionPoint1.x << " " << intersectionPoint1.y << std::endl;
         intersectionPoint1InQuadrant = pointInQuadrant(intersectionPoint1, corner1);
-        std::cout << "Point in quadrant:" << intersectionPoint1InQuadrant << std::endl;
+        //std::cout << "Point in quadrant:" << intersectionPoint1InQuadrant << std::endl;
     }
 
     Coordinate intersectionPoint2;
-    bool intersectionPoint2InQuadrant;
+    bool intersectionPoint2InQuadrant = false;
     if (intersectionPoint2Exists){
         intersectionPoint2 = Coordinate((px + t2 * rx), (py + t2 * ry));
-        std::cout << "Intersection 2 " << intersectionPoint2.x << " " << intersectionPoint2.y << std::endl;
+        //std::cout << "Intersection 2 " << intersectionPoint2.x << " " << intersectionPoint2.y << std::endl;
         intersectionPoint2InQuadrant = pointInQuadrant(intersectionPoint2, corner1);
+        //std::cout << "Point in quadrant:" << intersectionPoint1InQuadrant << std::endl;
     }
 
     if (intersectionPoint1InQuadrant && intersectionPoint2InQuadrant){
@@ -203,8 +207,7 @@ void drawDetectedCircles(cv::Mat image, std::vector<cv::Vec3f> circles){
     }
 }
 
-unsigned int GetTickCount()
-{
+unsigned int GetTickCount(){
         struct timeval tv;
         if(gettimeofday(&tv, NULL) != 0)
                 return 0;

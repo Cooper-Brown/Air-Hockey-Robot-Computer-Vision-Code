@@ -10,6 +10,8 @@ StmCommunicator::StmCommunicator(){
     serialPort = SerialPort("/dev/ttyACM0", BaudRate::B_115200, NumDataBits::EIGHT, Parity::NONE, NumStopBits::ONE);
     serialPort.SetTimeout(100); // Block for up to 100ms to receive data
     connectionEstablished = false;
+    pendingTransmissionSent = true; // do not send anything unless a new coordinate is set
+    lastTransmissionTime = GetTickCount();
 }
 
 bool StmCommunicator::connect(){
@@ -42,16 +44,34 @@ void StmCommunicator::disconnect(){
 }
 
 void StmCommunicator::setCoordinate(Coordinate p1){
-    if (!connectionEstablished){
-        return;
-    }
-    char buffer[20];
+    //char buffer[20];
     int x = (int32_t)p1.x;
-    int y = (int32_t)p1.y;
-    sprintf(buffer, "C:%d:%d:\n", x, y);
-    //std::cout << buffer << std::endl;
-    serialPort.Write(buffer);
+    int y = (int32_t)p1.y;;
+    sprintf(pendingTransmission, "C:%d:%d:\n", x, y);
+    std::cout << "Setting Coordinate:" << pendingTransmission << std::endl;
+    pendingTransmissionSent = false;
     return;
+}
+
+bool StmCommunicator::processPendingTransmission(){
+    //std::cout << "transmission Check" << std::endl;
+    if (pendingTransmissionSent){
+        return false;
+    }
+
+    unsigned int currentTicks = GetTickCount();
+    //std::cout << currentTicks - lastTransmissionTime << std::endl;
+    if (currentTicks - lastTransmissionTime < 100){
+        return false;
+    }
+    
+    std::cout << "Sending coordinate:" << pendingTransmission << std::endl;
+    if (connectionEstablished){
+        serialPort.Write(pendingTransmission);
+    }
+    pendingTransmissionSent = true;
+    lastTransmissionTime = currentTicks;
+    return true;
 }
 
 bool StmCommunicator::enableBoard(){

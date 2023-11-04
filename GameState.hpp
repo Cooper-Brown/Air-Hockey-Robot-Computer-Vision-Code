@@ -41,6 +41,8 @@ class GameState {
         
         bool resetTrackingAverage;
 
+        bool hardDefendFirstIteration;
+
         // Needed to communicate with the robot.
         StmCommunicator* stmComms;
 
