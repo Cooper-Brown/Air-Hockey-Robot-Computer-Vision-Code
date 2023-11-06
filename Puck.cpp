@@ -3,8 +3,8 @@
 
 Puck::Puck() {
     center = Coordinate();
-    lastKnownCenter = Coordinate();
     velocity = Vector();
+    averageVelocity = Vector();
     radius = 0;
     puckLostCounter = 0;
     puckLost = true;
@@ -14,38 +14,47 @@ Puck::Puck() {
 }
 
 void Puck::update(cv::Vec3f positionalData) {
+    float puckMovingThreshold = 2;
+    
     unsigned int ticksAtUpdateTime = GetTickCount();
     float newX = positionalData[0];
     float newY = positionalData[1];
     radius = positionalData[2];
     //std::cout << "Position " << newX << " " << newY << std::endl;
+
     if (noPrevPosition) {
-        lastKnownCenter.x = newX;
-        lastKnownCenter.y = newY;
+        center.x = newX;
+        center.y = newY;
         lastUpdateTime = ticksAtUpdateTime;
         noPrevPosition = false;
     }
-    center.x = newX;
-    center.y = newY;
-
-    float puckMovingThreshold = 1;
-    bool lastVelocityUnderThreshold = ((velocity.xComponent < puckMovingThreshold) && (velocity.yComponent < puckMovingThreshold));
     
     unsigned int timeElapsed = ticksAtUpdateTime - lastUpdateTime;
+    Vector newVelocity = Vector();
     if (timeElapsed == 0){
-        velocity.xComponent = 0;
-        velocity.yComponent = 0;
+        newVelocity.xComponent = 0;
+        newVelocity.yComponent = 0;
     }
     else {
-        velocity.xComponent = (center.x - lastKnownCenter.x) / (timeElapsed/1000.0);
-        velocity.yComponent = (center.y - lastKnownCenter.y) / (timeElapsed/1000.0);
+        newVelocity.xComponent = (newX - center.x) / (timeElapsed/1000.0);
+        newVelocity.yComponent = (newY - center.y) / (timeElapsed/1000.0);
     }
 
-    bool newVelocityUnderThreshold = ((velocity.xComponent < puckMovingThreshold) && (velocity.yComponent < puckMovingThreshold)); // was 3
-
+    bool lastVelocityUnderThreshold = ((fabs(velocity.xComponent) < puckMovingThreshold) && (fabs(velocity.yComponent) < puckMovingThreshold));
+    bool newVelocityUnderThreshold = ((fabs(newVelocity.xComponent) < puckMovingThreshold) && (fabs(newVelocity.yComponent) < puckMovingThreshold)); // was 3
     stationary = lastVelocityUnderThreshold && newVelocityUnderThreshold;
 
-    lastKnownCenter = center;
+    if (stationary || (signOf(velocity.xComponent) != signOf(newVelocity.xComponent)) || (signOf(velocity.yComponent) != signOf(newVelocity.yComponent))){
+        averageVelocity = newVelocity;
+    }
+    else{
+        averageVelocity.xComponent = (averageVelocity.xComponent + newVelocity.xComponent) / 2.0;
+        averageVelocity.yComponent = (averageVelocity.yComponent + newVelocity.yComponent) / 2.0;
+    }
+
+    center.x = newX;
+    center.y = newY;
+    velocity = newVelocity;
     lastUpdateTime = ticksAtUpdateTime;
     puckLost = false;
     puckLostCounter = 0;

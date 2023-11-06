@@ -7,8 +7,9 @@
 
 class Puck {
     public:
-        Coordinate center, lastKnownCenter;
+        Coordinate center;
         Vector velocity;
+        Vector averageVelocity;
         bool puckLost, noPrevPosition, stationary;
         unsigned int lastUpdateTime;
         int puckLostCounter;

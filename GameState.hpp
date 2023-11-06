@@ -24,6 +24,7 @@ class GameState {
             public:
                 std::string reflectedSurface;
                 Vector reflectedVector;
+                Line reflectedTrajectory;
                 Coordinate mostRecentReflectionPosition;
                 Coordinate averagePosition;
         };
@@ -57,6 +58,7 @@ class GameState {
         // Helper functions
         int translatePixelSpaceToRobotSpace(Coordinate pixelSpaceCoordinate, Coordinate* robotSpaceCoordinate);
         void computeFirstOrderPuckReflection(cv::Mat imageToDrawOn);
+        void computeSecondOrderPuckReflection(cv::Mat imageToDrawOn);
         
         // State Logic
         void hardDefendProcedure(cv::Mat imageToDrawOn);

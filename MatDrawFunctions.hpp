@@ -25,4 +25,6 @@ bool getCornerIntersection(Line line1, Corner corner1, Coordinate* intersectionP
 template<typename ... Args>
 std::string string_format( const std::string& format, Args ... args );
 
+int signOf(int number);
+
 #endif

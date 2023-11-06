@@ -104,6 +104,7 @@ void GameState::updateLogic(cv::Mat imageToDrawOn) {
 void GameState::hardDefendProcedure(cv::Mat imageToDrawOn){
     
     computeFirstOrderPuckReflection(imageToDrawOn);
+    computeSecondOrderPuckReflection(imageToDrawOn);
     
     // when game first starts, put puck in center of goal.
     if (hardDefendFirstIteration){
@@ -116,18 +117,34 @@ void GameState::hardDefendProcedure(cv::Mat imageToDrawOn){
         return;
     }
     
-    // if puck will go into goal, figure out where mallet needs to be to block it. 
+    // if puck will go into goal, figure out where mallet needs to be to block it.
+    Reflection reflectionToUse;
+    bool defendActivate = false;
     if (firstOrderReflection.reflectedSurface == "playerWinGoalLine"){
-        Coordinate newPositionPixelSpace = Coordinate(
-            pixelSpaceTable.robotBoundaryLeftLine.p1.x,
-            firstOrderReflection.mostRecentReflectionPosition.y 
+        reflectionToUse = firstOrderReflection;
+        defendActivate = true;
+    }
+    if (secondOrderReflection.reflectedSurface == "playerWinGoalLine"){
+        reflectionToUse = secondOrderReflection;
+        defendActivate = true;
+    }
+    if (defendActivate) {
+        Coordinate goalEntryCoordinate = Coordinate(
+            pixelSpaceTable.playerWinGoalLine.p1.x,
+            reflectionToUse.mostRecentReflectionPosition.y
         );
+
+        
+        Line goalTrajectory = Line(goalEntryCoordinate, reflectionToUse.mostRecentReflectionPosition);
+        Coordinate newPositionPixelSpace;
+        getLineIntersection2(pixelSpaceTable.robotBoundaryLeftLine, goalTrajectory, &newPositionPixelSpace);
+
         Coordinate newPositionRobotSpace = Coordinate();
-        std::cout << "New Pos Pix Space: X:" << newPositionPixelSpace.x << " Y:" << newPositionPixelSpace.y << std::endl;
         if (translatePixelSpaceToRobotSpace(newPositionPixelSpace, &newPositionRobotSpace) < 0){
             return;
         }
         stmComms->setCoordinate(newPositionRobotSpace);
+        circle(imageToDrawOn, cv::Point(newPositionRobotSpace.x, newPositionRobotSpace.y), 5, cv::Scalar(0, 0, 255), 2);
     }
     
 }
@@ -150,7 +167,7 @@ void GameState::standbyProcedure(cv::Mat imageToDrawOn){
         //gameState = STATE_ATTACK;
     }
 }
-
+  
 // TEMPORARY DEBUGGING VARIABLES
 int defendCount = 0;
 void GameState::defendProcedure(cv::Mat imageToDrawOn){
@@ -193,7 +210,7 @@ void GameState::attackProcedure(cv::Mat imageToDrawOn){
 // Will update the firstOrderPuckReflection class variable according to the most recent data.
 void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
     // Project the puck's instantaneous velocity
-    Vector puckVelocityUnitVector = greenPuck.velocity;//.getUnitVector(); UNIT VECTORS DEVIATE SIGNIFICANTLY FROM THE REGULAR VELOCITY FOR SOME REASON
+    Vector puckVelocityUnitVector = greenPuck.averageVelocity;
     Line puckTravelProjectionCenter(
         greenPuck.center, 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
@@ -214,9 +231,6 @@ void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
         Coordinate(greenPuck.center.x+PUCK_RADIUS_PIXELS, greenPuck.center.y), 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
     );
-    
-
-
     // Used for debugging trajectories
     //puckTravelProjection = pixelSpaceTable.testLine;
     
@@ -228,15 +242,27 @@ void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
     }
     else if (getLineIntersection2(pixelSpaceTable.leftLine, puckTravelProjectionLeft, &(firstOrderReflection.mostRecentReflectionPosition))) {
         firstOrderReflection.reflectedSurface.assign("leftLine");
+        firstOrderReflection.mostRecentReflectionPosition.x += 12;
+        firstOrderReflection.reflectedVector = greenPuck.velocity;
+        firstOrderReflection.reflectedVector.xComponent *= -1;
     }
     else if (getLineIntersection2(pixelSpaceTable.rightLine, puckTravelProjectionRight, &(firstOrderReflection.mostRecentReflectionPosition))) {
         firstOrderReflection.reflectedSurface.assign("rightLine");
+        firstOrderReflection.mostRecentReflectionPosition.x -= 12;
+        firstOrderReflection.reflectedVector = greenPuck.velocity;
+        firstOrderReflection.reflectedVector.xComponent *= -1;
     }
     else if (getLineIntersection2(pixelSpaceTable.topLine, puckTravelProjectionTop, &(firstOrderReflection.mostRecentReflectionPosition))) {
         firstOrderReflection.reflectedSurface.assign("topLine");
+        firstOrderReflection.mostRecentReflectionPosition.y -= 12;
+        firstOrderReflection.reflectedVector = greenPuck.velocity;
+        firstOrderReflection.reflectedVector.yComponent *= -1;
     }
     else if (getLineIntersection2(pixelSpaceTable.bottomLine, puckTravelProjectionBottom, &(firstOrderReflection.mostRecentReflectionPosition))) {
         firstOrderReflection.reflectedSurface.assign("bottomLine");
+        firstOrderReflection.mostRecentReflectionPosition.y += 12;
+        firstOrderReflection.reflectedVector = greenPuck.velocity;
+        firstOrderReflection.reflectedVector.yComponent *= -1;
     }
     else if (getCornerIntersection(puckTravelProjectionCenter, pixelSpaceTable.bottomRightCorner, &(firstOrderReflection.mostRecentReflectionPosition))) {
         firstOrderReflection.reflectedSurface.assign("bottomRightCorner");
@@ -253,14 +279,105 @@ void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
     else {
         drawPoint = false;
     }
-    if (true){ // drawPoint
+    if (drawPoint){
+
+        firstOrderReflection.reflectedTrajectory = Line(
+            firstOrderReflection.mostRecentReflectionPosition,
+            Coordinate(
+                (firstOrderReflection.mostRecentReflectionPosition.x + 1000*firstOrderReflection.reflectedVector.xComponent),
+                (firstOrderReflection.mostRecentReflectionPosition.y + 1000*firstOrderReflection.reflectedVector.yComponent)
+            )
+        );
+
         drawBorderLine(imageToDrawOn, puckTravelProjectionCenter);
+        drawBorderLine(imageToDrawOn, firstOrderReflection.reflectedTrajectory);
+
         //drawBorderLine(imageToDrawOn, puckTravelProjectionTop);
         //drawBorderLine(imageToDrawOn, puckTravelProjectionBottom);
         //drawBorderLine(imageToDrawOn, puckTravelProjectionLeft);
         //drawBorderLine(imageToDrawOn, puckTravelProjectionRight);
         circle(imageToDrawOn, cv::Point(firstOrderReflection.mostRecentReflectionPosition.x, firstOrderReflection.mostRecentReflectionPosition.y), 5, cv::Scalar(255, 0, 0), 2);
-
     }
-
 } 
+
+void GameState::computeSecondOrderPuckReflection(cv::Mat imageToDrawOn) {
+    // Project the puck's instantaneous velocity
+    Vector puckVelocityUnitVector = firstOrderReflection.reflectedVector;//.getUnitVector(); UNIT VECTORS DEVIATE SIGNIFICANTLY FROM THE REGULAR VELOCITY FOR SOME REASON
+    Line puckTravelProjectionCenter(
+        firstOrderReflection.mostRecentReflectionPosition, 
+        Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
+    );
+    Line puckTravelProjectionBottom(
+        Coordinate(firstOrderReflection.mostRecentReflectionPosition.x, firstOrderReflection.mostRecentReflectionPosition.y-PUCK_RADIUS_PIXELS), 
+        Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
+    );
+    Line puckTravelProjectionTop(
+        Coordinate(firstOrderReflection.mostRecentReflectionPosition.x, firstOrderReflection.mostRecentReflectionPosition.y+PUCK_RADIUS_PIXELS), 
+        Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
+    );
+    Line puckTravelProjectionLeft(
+        Coordinate(firstOrderReflection.mostRecentReflectionPosition.x-PUCK_RADIUS_PIXELS, firstOrderReflection.mostRecentReflectionPosition.y), 
+        Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
+    );
+    Line puckTravelProjectionRight(
+        Coordinate(firstOrderReflection.mostRecentReflectionPosition.x+PUCK_RADIUS_PIXELS, firstOrderReflection.mostRecentReflectionPosition.y), 
+        Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
+    );
+    Vector reflectedVector;
+    bool drawPoint = !greenPuck.stationary;
+    if (getLineIntersection2(pixelSpaceTable.playerWinGoalLine, puckTravelProjectionLeft, &(secondOrderReflection.mostRecentReflectionPosition))) { // puckTravelProjection
+        secondOrderReflection.reflectedSurface.assign("playerWinGoalLine");
+    }
+    else if (getLineIntersection2(pixelSpaceTable.leftLine, puckTravelProjectionLeft, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("leftLine");
+        secondOrderReflection.mostRecentReflectionPosition.x += 12;
+        secondOrderReflection.reflectedVector = greenPuck.velocity;
+        secondOrderReflection.reflectedVector.xComponent *= -1;
+    }
+    else if (getLineIntersection2(pixelSpaceTable.rightLine, puckTravelProjectionRight, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("rightLine");
+        secondOrderReflection.mostRecentReflectionPosition.x -= 12;
+        secondOrderReflection.reflectedVector = greenPuck.velocity;
+        secondOrderReflection.reflectedVector.xComponent *= -1;
+    }
+    else if (getLineIntersection2(pixelSpaceTable.topLine, puckTravelProjectionTop, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("topLine");
+        secondOrderReflection.mostRecentReflectionPosition.y -= 12;
+        secondOrderReflection.reflectedVector = greenPuck.velocity;
+        secondOrderReflection.reflectedVector.yComponent *= -1;
+    }
+    else if (getLineIntersection2(pixelSpaceTable.bottomLine, puckTravelProjectionBottom, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("bottomLine");
+        secondOrderReflection.mostRecentReflectionPosition.y += 12;
+        secondOrderReflection.reflectedVector = greenPuck.velocity;
+        secondOrderReflection.reflectedVector.yComponent *= -1;
+    }
+    else if (getCornerIntersection(puckTravelProjectionCenter, pixelSpaceTable.bottomRightCorner, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("bottomRightCorner");
+    }
+    else if (getCornerIntersection(puckTravelProjectionCenter, pixelSpaceTable.topRightCorner, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("topRightCorner");
+    }
+    else if (getCornerIntersection(puckTravelProjectionCenter, pixelSpaceTable.bottomLeftCorner, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("bottomLeftCorner");
+    }
+    else if (getCornerIntersection(puckTravelProjectionCenter, pixelSpaceTable.topLeftCorner, &(secondOrderReflection.mostRecentReflectionPosition))) {
+        secondOrderReflection.reflectedSurface.assign("topLeftCorner");
+    }
+    else {
+        drawPoint = false;
+    }
+    if (drawPoint){
+
+        secondOrderReflection.reflectedTrajectory = Line(
+            secondOrderReflection.mostRecentReflectionPosition,
+            Coordinate(
+                (secondOrderReflection.mostRecentReflectionPosition.x + 1000*secondOrderReflection.reflectedVector.xComponent),
+                (secondOrderReflection.mostRecentReflectionPosition.y + 1000*secondOrderReflection.reflectedVector.yComponent)
+            )
+        );
+        
+        circle(imageToDrawOn, cv::Point(secondOrderReflection.mostRecentReflectionPosition.x, secondOrderReflection.mostRecentReflectionPosition.y), 5, cv::Scalar(0, 255, 0), 2);
+    }
+    return;
+}
