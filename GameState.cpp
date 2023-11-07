@@ -124,27 +124,33 @@ void GameState::hardDefendProcedure(cv::Mat imageToDrawOn){
         reflectionToUse = firstOrderReflection;
         defendActivate = true;
     }
-    if (secondOrderReflection.reflectedSurface == "playerWinGoalLine"){
-        reflectionToUse = secondOrderReflection;
-        defendActivate = true;
+    else if (secondOrderReflection.reflectedSurface == "playerWinGoalLine"){
+        if (!(firstOrderReflection.reflectedSurface == "rightLine") && !(firstOrderReflection.reflectedSurface == "robotWinGoalLine")){
+            reflectionToUse = secondOrderReflection;
+            defendActivate = true;
+        }
     }
     if (defendActivate) {
+        // Used for plotting only
         Coordinate goalEntryCoordinate = Coordinate(
             pixelSpaceTable.playerWinGoalLine.p1.x,
             reflectionToUse.mostRecentReflectionPosition.y
         );
-
+        //Line goalTrajectory = Line(goalEntryCoordinate, reflectionToUse.incomingTrajectory);
         
-        Line goalTrajectory = Line(goalEntryCoordinate, reflectionToUse.mostRecentReflectionPosition);
-        Coordinate newPositionPixelSpace;
-        getLineIntersection2(pixelSpaceTable.robotBoundaryLeftLine, goalTrajectory, &newPositionPixelSpace);
+
+        Coordinate newPositionPixelSpace = Coordinate();
+        getLineIntersection2(pixelSpaceTable.robotBoundaryLeftLine, reflectionToUse.incomingTrajectory, &newPositionPixelSpace);
+        
+        //std::cout << pixelSpaceTable.robotBoundaryLeftLine.p1.x << std::endl;
+        //std::cout << "Circle at X:" << newPositionPixelSpace.x << " Y:" << newPositionPixelSpace.y << std::endl;
+        circle(imageToDrawOn, cv::Point(goalEntryCoordinate.x, goalEntryCoordinate.y), 10, cv::Scalar(0, 0, 255), 2);
 
         Coordinate newPositionRobotSpace = Coordinate();
         if (translatePixelSpaceToRobotSpace(newPositionPixelSpace, &newPositionRobotSpace) < 0){
             return;
         }
         stmComms->setCoordinate(newPositionRobotSpace);
-        circle(imageToDrawOn, cv::Point(newPositionRobotSpace.x, newPositionRobotSpace.y), 5, cv::Scalar(0, 0, 255), 2);
     }
     
 }
@@ -231,6 +237,9 @@ void GameState::computeFirstOrderPuckReflection(cv::Mat imageToDrawOn) {
         Coordinate(greenPuck.center.x+PUCK_RADIUS_PIXELS, greenPuck.center.y), 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
     );
+
+    firstOrderReflection.incomingVector = puckVelocityUnitVector;
+    firstOrderReflection.incomingTrajectory = puckTravelProjectionCenter;
     // Used for debugging trajectories
     //puckTravelProjection = pixelSpaceTable.testLine;
     
@@ -323,6 +332,8 @@ void GameState::computeSecondOrderPuckReflection(cv::Mat imageToDrawOn) {
         Coordinate(firstOrderReflection.mostRecentReflectionPosition.x+PUCK_RADIUS_PIXELS, firstOrderReflection.mostRecentReflectionPosition.y), 
         Coordinate(puckVelocityUnitVector.xComponent*1000, puckVelocityUnitVector.yComponent*1000)
     );
+    secondOrderReflection.incomingVector = puckVelocityUnitVector;
+    secondOrderReflection.incomingTrajectory = puckTravelProjectionCenter;
     Vector reflectedVector;
     bool drawPoint = !greenPuck.stationary;
     if (getLineIntersection2(pixelSpaceTable.playerWinGoalLine, puckTravelProjectionLeft, &(secondOrderReflection.mostRecentReflectionPosition))) { // puckTravelProjection

@@ -23,10 +23,12 @@ class GameState {
         class Reflection {
             public:
                 std::string reflectedSurface;
-                Vector reflectedVector;
-                Line reflectedTrajectory;
                 Coordinate mostRecentReflectionPosition;
                 Coordinate averagePosition;
+                Vector incomingVector;
+                Line incomingTrajectory;
+                Vector reflectedVector;
+                Line reflectedTrajectory;
         };
 
         // Game Entities
