@@ -5,6 +5,11 @@
 #include "GameState.hpp"
 #include "MatDrawFunctions.hpp"
 
+int moveNumber = 0;
+unsigned int lastMoveActuationTime = 0;
+unsigned int interActuationTime = 1500;
+
+// CONSTRUCTOR
 GameState::GameState(cv::Size rescaledSize, StmCommunicator* stmCommsIn) {
     stmComms = stmCommsIn;
     float AHT_x = rescaledSize.width-40;
@@ -19,6 +24,7 @@ GameState::GameState(cv::Size rescaledSize, StmCommunicator* stmCommsIn) {
     hardDefendFirstIteration = true;
 }
 
+// HELPER FUNCTIONS
 int GameState::translatePixelSpaceToRobotSpace(Coordinate pixelSpaceCoordinate, Coordinate* robotSpaceCoordinate){
     float leftExtremity = pixelSpaceTable.robotBoundaryLeftLine.p1.x;
     float rightExtremity = pixelSpaceTable.robotBoundaryRightLine.p1.x;
@@ -43,15 +49,22 @@ int GameState::translatePixelSpaceToRobotSpace(Coordinate pixelSpaceCoordinate, 
     return 0;
 }
 
+// GAMEPLAY DRIVERS
 void GameState::registerLostPuck() {
     greenPuck.registerLostPuck();
 }
-
 void GameState::updatePuckPosition(cv::Vec3f positionalData) {
     greenPuck.update(positionalData);
     //std::cout << positionalData[2] << std::endl; // puck radius is 12 pixels
 }
-
+void GameState::switchToDynamic() {
+    stmComms->setStandbyCoordinate();
+    gameState = STATE_STANDBY;
+}
+void GameState::switchToDefend() {
+    stmComms->setStandbyCoordinate();
+    gameState = STATE_HARD_DEFENCE;
+}
 void GameState::updateLogic(cv::Mat imageToDrawOn) {
     switch (gameState) {
         case STATE_STANDBY:
@@ -70,53 +83,22 @@ void GameState::updateLogic(cv::Mat imageToDrawOn) {
             break;
     }
     bool transmissionSent = stmComms->processPendingTransmission();
-    /*
-    computeFirstOrderPuckReflection(imageToDrawOn);
-    if (resetTrackingAverage){
-        firstOrderReflection.averagePosition = firstOrderReflection.mostRecentReflectionPosition;
-        resetTrackingAverage = false;
-    }
-    else {
-        firstOrderReflection.averagePosition.x = (firstOrderReflection.averagePosition.x + firstOrderReflection.mostRecentReflectionPosition.x) / 2;
-        firstOrderReflection.averagePosition.y = (firstOrderReflection.averagePosition.y + firstOrderReflection.mostRecentReflectionPosition.y) / 2;
-        if (firstOrderReflection.averagePosition.getDistanceFrom(firstOrderReflection.mostRecentReflectionPosition) > 100){
-            resetTrackingAverage = true;
-        }
-    }
-    // (!greenPuck.stationary) && 
-    if ((firstOrderReflection.reflectedSurface == "playerWinGoalLine")) {
-        gameState = STATE_DEFEND;
-        std::cout << "Defending " << defendCount++ << std::endl;        
-    }
-
-    if (gameState == STATE_DEFEND){
-        circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 0, 255), 2);
-        if (greenPuck.puckLost){
-            gameState = STATE_STANDBY;
-        }
-    }
-    else if (gameState == STATE_STANDBY) {
-        circle(imageToDrawOn, cv::Point(firstOrderReflection.averagePosition.x, firstOrderReflection.averagePosition.y), 5, cv::Scalar(0, 255, 0), 2);
-    }
-    */
 }
 
-void GameState::hardDefendProcedure(cv::Mat imageToDrawOn){
-    
+// LOGIC STATE PROCEDURES
+void GameState::hardDefendProcedure(cv::Mat imageToDrawOn) {
+
     computeFirstOrderPuckReflection(imageToDrawOn);
     computeSecondOrderPuckReflection(imageToDrawOn);
-    
     // when game first starts, put puck in center of goal.
     if (hardDefendFirstIteration){
-        stmComms->setCoordinate(Coordinate(TABLE_X_BOUNDARY_MIN + (TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MIN));
+        stmComms->setStandbyCoordinate();
         hardDefendFirstIteration = false;
         return;
     }
-
     if (greenPuck.puckLost){
         return;
     }
-    
     // if puck will go into goal, figure out where mallet needs to be to block it.
     Reflection reflectionToUse;
     bool defendActivate = false;
@@ -137,80 +119,88 @@ void GameState::hardDefendProcedure(cv::Mat imageToDrawOn){
             reflectionToUse.mostRecentReflectionPosition.y
         );
         //Line goalTrajectory = Line(goalEntryCoordinate, reflectionToUse.incomingTrajectory);
-        
-
         Coordinate newPositionPixelSpace = Coordinate();
         getLineIntersection2(pixelSpaceTable.robotBoundaryLeftLine, reflectionToUse.incomingTrajectory, &newPositionPixelSpace);
-        
         //std::cout << pixelSpaceTable.robotBoundaryLeftLine.p1.x << std::endl;
         //std::cout << "Circle at X:" << newPositionPixelSpace.x << " Y:" << newPositionPixelSpace.y << std::endl;
         circle(imageToDrawOn, cv::Point(goalEntryCoordinate.x, goalEntryCoordinate.y), 10, cv::Scalar(0, 0, 255), 2);
-
         Coordinate newPositionRobotSpace = Coordinate();
         if (translatePixelSpaceToRobotSpace(newPositionPixelSpace, &newPositionRobotSpace) < 0){
             return;
         }
         stmComms->setCoordinate(newPositionRobotSpace);
     }
-    
 }
 
 void GameState::standbyProcedure(cv::Mat imageToDrawOn){
+
     // If the puck is lost, stay in standby mode
     if (greenPuck.puckLost){
         return;
     }
-
     // Stay in standby until the puck is stationary 
     if (!greenPuck.stationary){
-        std::cout << "Puck Not Stationary" << std::endl;
+        //std::cout << "Puck Not Stationary" << std::endl;
         return;
     }
-
     // Determine if the puck is in the area of influence.
     if (pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
-        std::cout << "In Area of Influence" << std::endl;
-        //gameState = STATE_ATTACK;
+        //std::cout << "In Area of Influence" << std::endl;
+        transitionToAttack();
+    }
+    else {
+        gameState = STATE_DEFEND;
     }
 }
   
-// TEMPORARY DEBUGGING VARIABLES
-int defendCount = 0;
 void GameState::defendProcedure(cv::Mat imageToDrawOn){
 
+    hardDefendProcedure(imageToDrawOn);
+    if (greenPuck.puckLost){
+        gameState = STATE_STANDBY;
+    }
+    if (greenPuck.stationary && (pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center))) {
+        transitionToAttack();
+    }
 }
 
-bool attackCommandSent = false;
-unsigned int moveTwoWaitTime = 5000;
-unsigned int moveTwoTimerStartTime = 0;
+void GameState::transitionToAttack() {
+    gameState = STATE_ATTACK;
+    lastMoveActuationTime = GetTickCount();
+    moveNumber = 0;
+}
+
 void GameState::attackProcedure(cv::Mat imageToDrawOn){
+    /*
     // Ensure conditions for the attack are still met
     if (!pixelSpaceTable.checkCoordinateInRobotArea(greenPuck.center)){
-        std::cout << "Leaving Defend State" << std::endl;
+        std::cout << "Leaving Attack State" << std::endl;
         gameState = STATE_STANDBY;
         return;
     }
-    
+    */
     // Come up with a plan
-    Line targetTrajectoryDirect = Line(greenPuck.center, pixelSpaceTable.robotWinGoalLine.computeCenterCoordinate());
-    drawBorderLine(imageToDrawOn, targetTrajectoryDirect);
+    //Line targetTrajectoryDirect = Line(greenPuck.center, pixelSpaceTable.robotWinGoalLine.computeCenterCoordinate());
+    //drawBorderLine(imageToDrawOn, targetTrajectoryDirect);
 
-    if (!attackCommandSent){
-        if (moveTwoTimerStartTime == 0){
-            moveTwoTimerStartTime = GetTickCount();
-            if (stmComms->connectionEstablished)
-                stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, 5000));
-            std::cout << "Position 1 set" << std::endl;
-            
-        }
-        if (GetTickCount() - moveTwoTimerStartTime > moveTwoWaitTime)
-        {
-            if (stmComms->connectionEstablished)
-                stmComms->setCoordinate(Coordinate((TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MAX-5000));
-            std::cout << "Position 2 set" << std::endl;
-            attackCommandSent = true;
-        }
+    unsigned int currentTime = GetTickCount();
+    if (currentTime - lastMoveActuationTime < interActuationTime){
+        return;
     }
+    switch (moveNumber) {
+        case 0:
+            stmComms->setStandbyCoordinate();
+            break;
+        case 1:
+            stmComms->setCoordinate(Coordinate(TABLE_X_BOUNDARY_MIN + (TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MAX-5000));
+            break;
+        case 2:
+            gameState = STATE_DEFEND;
+        default:
+            return;
+    }
+    moveNumber++;
+    lastMoveActuationTime = currentTime;
 }
 
 // Will update the firstOrderPuckReflection class variable according to the most recent data.

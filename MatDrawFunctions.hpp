@@ -9,6 +9,10 @@
 #include <stdexcept>
 
 #define PUCK_RADIUS_PIXELS 12
+#define TABLE_X_BOUNDARY_MIN 2000
+#define TABLE_X_BOUNDARY_MAX 15100
+#define TABLE_Y_BOUNDARY_MIN 2000
+#define TABLE_Y_BOUNDARY_MAX 17300
 
 void drawBorderLine(cv::Mat image, Line line);
 void drawCorner(cv::Mat image, Corner corner);

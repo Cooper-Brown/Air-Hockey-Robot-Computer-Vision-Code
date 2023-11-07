@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "MatDrawFunctions.hpp"
 
+
 StmCommunicator::StmCommunicator(){
     // B_57600
     serialPort = SerialPort("/dev/ttyACM0", BaudRate::B_115200, NumDataBits::EIGHT, Parity::NONE, NumStopBits::ONE);
@@ -48,9 +49,13 @@ void StmCommunicator::setCoordinate(Coordinate p1){
     int x = (int32_t)p1.x;
     int y = (int32_t)p1.y;;
     sprintf(pendingTransmission, "C:%d:%d:\n", x, y);
-    std::cout << "Setting Coordinate:" << pendingTransmission << std::endl;
+    std::cout << "Setting Coordinate:" << pendingTransmission;
     pendingTransmissionSent = false;
     return;
+}
+
+void StmCommunicator::setStandbyCoordinate() {
+    setCoordinate(Coordinate(TABLE_X_BOUNDARY_MIN + (TABLE_X_BOUNDARY_MAX-TABLE_X_BOUNDARY_MIN)/2.0, TABLE_Y_BOUNDARY_MIN));
 }
 
 bool StmCommunicator::processPendingTransmission(){
@@ -65,7 +70,7 @@ bool StmCommunicator::processPendingTransmission(){
         return false;
     }
     
-    std::cout << "Sending coordinate:" << pendingTransmission << std::endl;
+    //std::cout << "Sending coordinate:" << pendingTransmission << std::endl;
     if (connectionEstablished){
         serialPort.Write(pendingTransmission);
     }

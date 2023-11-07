@@ -1,4 +1,7 @@
 
+#define CONNECT_TO_BOARD
+//#define OUTPUT_VIDEO
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/cuda.hpp>
 #include <opencv2/cudafilters.hpp>
@@ -51,9 +54,6 @@
 
 #define CAM_RESCALED_WIDTH 640
 #define CAM_RESCALED_HEIGHT 360
-
-#define CONNECT_TO_BOARD
-//#define OUTPUT_VIDEO
 
 int main() {
     std::cout.flush();
@@ -167,7 +167,25 @@ int main() {
         start = GetTickCount();
 
         // on escape key in window, exit the program
-        if(cv::waitKey(1) == 27) break;
+        bool breakCode = false;
+        switch (cv::waitKey(1))
+        {
+        case 27: // esc
+            breakCode = true;
+            break;
+        case 97: // a
+            gameStateInstance.switchToDynamic();
+            break;
+        case 100: // d
+            gameStateInstance.switchToDefend();
+            break;
+        default:
+            break;
+        }
+
+        if (breakCode){
+            break;
+        }
 
         // Get the camera frame
         if (helper_get_cam_frame(&ptr_cam_frame, &bytes_used) < 0) {

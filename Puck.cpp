@@ -14,7 +14,7 @@ Puck::Puck() {
 }
 
 void Puck::update(cv::Vec3f positionalData) {
-    float puckMovingThreshold = 2;
+    float puckMovingThreshold = 100;
     
     unsigned int ticksAtUpdateTime = GetTickCount();
     float newX = positionalData[0];
@@ -44,7 +44,7 @@ void Puck::update(cv::Vec3f positionalData) {
     bool newVelocityUnderThreshold = ((fabs(newVelocity.xComponent) < puckMovingThreshold) && (fabs(newVelocity.yComponent) < puckMovingThreshold)); // was 3
     stationary = lastVelocityUnderThreshold && newVelocityUnderThreshold;
 
-    if (stationary || (signOf(velocity.xComponent) != signOf(newVelocity.xComponent)) || (signOf(velocity.yComponent) != signOf(newVelocity.yComponent))){
+    if (stationary || (signOf(velocity.xComponent) + signOf(newVelocity.xComponent) == 0) || (signOf(velocity.yComponent) + signOf(newVelocity.yComponent) == 0)){
         averageVelocity = newVelocity;
     }
     else{
@@ -61,8 +61,9 @@ void Puck::update(cv::Vec3f positionalData) {
     return;
 }
 
+// 10 consecutive frames with no puck are needed for it to be considered lost
 void Puck::registerLostPuck() {
-    if (++puckLostCounter < 3){
+    if (++puckLostCounter < 10){
         return;
     }
     puckLost = true;
@@ -76,5 +77,4 @@ void Puck::draw(cv::Mat imageToDrawOn){
     Coordinate unitVectorEndpoint(center.x + velocity.xComponent/10.0, center.y + velocity.yComponent/10.0);
     Line velocityRepresentation(center, unitVectorEndpoint);
     drawVelocityLine(imageToDrawOn, velocityRepresentation);
-    
 }

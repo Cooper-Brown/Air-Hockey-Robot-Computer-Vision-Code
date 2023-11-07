@@ -12,11 +12,6 @@
 #define STATE_ATTACK 2
 #define STATE_HARD_DEFENCE 3
 
-#define TABLE_X_BOUNDARY_MIN 2000
-#define TABLE_X_BOUNDARY_MAX 15100
-#define TABLE_Y_BOUNDARY_MIN 2000
-#define TABLE_Y_BOUNDARY_MAX 17300
-
 class GameState {
     public:
         // Internal class Reflection
@@ -56,11 +51,14 @@ class GameState {
         void registerLostPuck();
         void updatePuckPosition(cv::Vec3f positionalData);
         void updateLogic(cv::Mat imageToDrawOn);
+        void switchToDynamic();
+        void switchToDefend();
     private:
         // Helper functions
         int translatePixelSpaceToRobotSpace(Coordinate pixelSpaceCoordinate, Coordinate* robotSpaceCoordinate);
         void computeFirstOrderPuckReflection(cv::Mat imageToDrawOn);
         void computeSecondOrderPuckReflection(cv::Mat imageToDrawOn);
+        void transitionToAttack();
         
         // State Logic
         void hardDefendProcedure(cv::Mat imageToDrawOn);

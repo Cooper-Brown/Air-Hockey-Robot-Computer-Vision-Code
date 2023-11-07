@@ -20,6 +20,7 @@ class StmCommunicator {
         void disconnect();
         bool enableBoard();
         void setCoordinate(Coordinate p1);
+        void setStandbyCoordinate();
         bool processPendingTransmission();
 };
 
