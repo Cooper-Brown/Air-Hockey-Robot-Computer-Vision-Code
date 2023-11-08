@@ -66,7 +66,7 @@ bool StmCommunicator::processPendingTransmission(){
 
     unsigned int currentTicks = GetTickCount();
     //std::cout << currentTicks - lastTransmissionTime << std::endl;
-    if (currentTicks - lastTransmissionTime < 100){
+    if (currentTicks - lastTransmissionTime < 5){
         return false;
     }
     

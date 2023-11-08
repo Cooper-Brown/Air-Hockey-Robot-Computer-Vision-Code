@@ -83,7 +83,7 @@ int main() {
     cv::VideoWriter oVideoWriter(
         "./MyVideo.avi", 
         cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 
-        40, 
+        30, 
         cv::Size(640,360), 
         true
     );
@@ -122,7 +122,7 @@ int main() {
     cv::Ptr<cv::cuda::HoughCirclesDetector> houghCircleDetectorRed = cv::cuda::createHoughCirclesDetector(
         dp, minDist, cannyThreshold, votesThreshold, minRadius, maxRadius
     );
-
+    
     // The image will be rescaled to this resolution
     cv::Size rescaledSize(CAM_RESCALED_WIDTH, CAM_RESCALED_HEIGHT);
 

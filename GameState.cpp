@@ -99,6 +99,9 @@ void GameState::hardDefendProcedure(cv::Mat imageToDrawOn) {
     if (greenPuck.puckLost){
         return;
     }
+    if (greenPuck.stationary){
+        return;
+    }
     // if puck will go into goal, figure out where mallet needs to be to block it.
     Reflection reflectionToUse;
     bool defendActivate = false;
